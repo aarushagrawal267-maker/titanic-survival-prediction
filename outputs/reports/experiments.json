@@ -1,0 +1,445 @@
+{
+  "scaling": {
+    "rows": [
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "scaler": "none",
+        "roc_auc": 0.8690680577984653,
+        "roc_auc_std": 0.024824719163570763,
+        "accuracy": 0.8202304737516005
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "scaler": "standard",
+        "roc_auc": 0.869573293013732,
+        "roc_auc_std": 0.024627331892128033,
+        "accuracy": 0.8202304737516005
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "scaler": "robust",
+        "roc_auc": 0.8689874185955692,
+        "roc_auc_std": 0.024908866975367747,
+        "accuracy": 0.8202304737516005
+      },
+      {
+        "model": "K-Nearest Neighbors",
+        "key": "knn",
+        "scaler": "none",
+        "roc_auc": 0.7766766674055074,
+        "roc_auc_std": 0.01435041818504061,
+        "accuracy": 0.7415640697330839
+      },
+      {
+        "model": "K-Nearest Neighbors",
+        "key": "knn",
+        "scaler": "standard",
+        "roc_auc": 0.8508992221061187,
+        "roc_auc_std": 0.025201410528964564,
+        "accuracy": 0.8047966118388654
+      },
+      {
+        "model": "K-Nearest Neighbors",
+        "key": "knn",
+        "scaler": "robust",
+        "roc_auc": 0.850468095268252,
+        "roc_auc_std": 0.03205000979202137,
+        "accuracy": 0.8174726681768935
+      },
+      {
+        "model": "Support Vector Machine",
+        "key": "svm",
+        "scaler": "none",
+        "roc_auc": 0.7651193491867473,
+        "roc_auc_std": 0.010585203633753931,
+        "accuracy": 0.6854131783709249
+      },
+      {
+        "model": "Support Vector Machine",
+        "key": "svm",
+        "scaler": "standard",
+        "roc_auc": 0.8726886155177691,
+        "roc_auc_std": 0.029276622767463626,
+        "accuracy": 0.8272727272727274
+      },
+      {
+        "model": "Support Vector Machine",
+        "key": "svm",
+        "scaler": "robust",
+        "roc_auc": 0.8674482547523301,
+        "roc_auc_std": 0.026864031959951552,
+        "accuracy": 0.8202600216684723
+      }
+    ],
+    "best": {
+      "logistic_regression": "standard",
+      "knn": "standard",
+      "svm": "standard"
+    }
+  },
+  "feature_sets": {
+    "rows": [
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "feature_set": "base",
+        "roc_auc": 0.8546318593458093,
+        "roc_auc_std": 0.021849056643792143,
+        "accuracy": 0.7977642076233625
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "feature_set": "engineered",
+        "roc_auc": 0.869573293013732,
+        "roc_auc_std": 0.024627331892128033,
+        "accuracy": 0.8202304737516005
+      },
+      {
+        "model": "Decision Tree",
+        "key": "decision_tree",
+        "feature_set": "base",
+        "roc_auc": 0.7534524318419303,
+        "roc_auc_std": 0.01726024612049571,
+        "accuracy": 0.7682852358908697
+      },
+      {
+        "model": "Decision Tree",
+        "key": "decision_tree",
+        "feature_set": "engineered",
+        "roc_auc": 0.7744500649124474,
+        "roc_auc_std": 0.014947022560440709,
+        "accuracy": 0.7823303457106274
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "feature_set": "base",
+        "roc_auc": 0.86645878851208,
+        "roc_auc_std": 0.0096853246474734,
+        "accuracy": 0.7991431104107161
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "feature_set": "engineered",
+        "roc_auc": 0.8765119322799573,
+        "roc_auc_std": 0.01827123821178469,
+        "accuracy": 0.8174431202600216
+      },
+      {
+        "model": "K-Nearest Neighbors",
+        "key": "knn",
+        "feature_set": "base",
+        "roc_auc": 0.8459474842468572,
+        "roc_auc_std": 0.018995560120201413,
+        "accuracy": 0.8033586132177681
+      },
+      {
+        "model": "K-Nearest Neighbors",
+        "key": "knn",
+        "feature_set": "engineered",
+        "roc_auc": 0.8508992221061187,
+        "roc_auc_std": 0.025201410528964564,
+        "accuracy": 0.8047966118388654
+      },
+      {
+        "model": "Support Vector Machine",
+        "key": "svm",
+        "feature_set": "base",
+        "roc_auc": 0.8561689913766717,
+        "roc_auc_std": 0.024113481880225197,
+        "accuracy": 0.8202009258347285
+      },
+      {
+        "model": "Support Vector Machine",
+        "key": "svm",
+        "feature_set": "engineered",
+        "roc_auc": 0.8726886155177691,
+        "roc_auc_std": 0.029276622767463626,
+        "accuracy": 0.8272727272727274
+      },
+      {
+        "model": "Gradient Boosting",
+        "key": "gradient_boosting",
+        "feature_set": "base",
+        "roc_auc": 0.882878115005858,
+        "roc_auc_std": 0.016715035554129246,
+        "accuracy": 0.821619225844578
+      },
+      {
+        "model": "Gradient Boosting",
+        "key": "gradient_boosting",
+        "feature_set": "engineered",
+        "roc_auc": 0.8976568717477809,
+        "roc_auc_std": 0.021526834700096833,
+        "accuracy": 0.8342755835713582
+      },
+      {
+        "model": "XGBoost",
+        "key": "xgboost",
+        "feature_set": "base",
+        "roc_auc": 0.8765146765460246,
+        "roc_auc_std": 0.007666417462179538,
+        "accuracy": 0.8145966709346991
+      },
+      {
+        "model": "XGBoost",
+        "key": "xgboost",
+        "feature_set": "engineered",
+        "roc_auc": 0.8882550162017246,
+        "roc_auc_std": 0.01794065566308479,
+        "accuracy": 0.8118487146656161
+      }
+    ],
+    "best": {
+      "logistic_regression": "engineered",
+      "decision_tree": "engineered",
+      "random_forest": "engineered",
+      "knn": "engineered",
+      "svm": "engineered",
+      "gradient_boosting": "engineered",
+      "xgboost": "engineered"
+    }
+  },
+  "ablation": {
+    "rows": [
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "(none \u2014 all features)",
+        "roc_auc": 0.869573293013732,
+        "delta": 0.0
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "FamilySize",
+        "roc_auc": 0.8696160402351625,
+        "delta": 4.27472214304947e-05
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "IsAlone",
+        "roc_auc": 0.8693629344648153,
+        "delta": -0.00021035854891671146
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "TitleGroup",
+        "roc_auc": 0.8644638522107174,
+        "delta": -0.005109440803014564
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "FarePerPerson",
+        "roc_auc": 0.8703330589067267,
+        "delta": 0.000759765892994757
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "AgeGroup",
+        "roc_auc": 0.8701638907359909,
+        "delta": 0.0005905977222588898
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "FamilyCategory",
+        "roc_auc": 0.8678127407829603,
+        "delta": -0.0017605522307716504
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "CabinKnown",
+        "roc_auc": 0.8691990965031717,
+        "delta": -0.00037419651056025405
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "Deck",
+        "roc_auc": 0.871397834140781,
+        "delta": 0.0018245411270489953
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "TicketGroupSize",
+        "roc_auc": 0.8728608182134827,
+        "delta": 0.0032875251997507293
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "dropped": "AgeKnown",
+        "roc_auc": 0.8697362865858164,
+        "delta": 0.00016299357208438003
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "(none \u2014 all features)",
+        "roc_auc": 0.8765119322799573,
+        "delta": 0.0
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "FamilySize",
+        "roc_auc": 0.8770802460340079,
+        "delta": 0.0005683137540506422
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "IsAlone",
+        "roc_auc": 0.8795517346928005,
+        "delta": 0.0030398024128431844
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "TitleGroup",
+        "roc_auc": 0.8733116166893596,
+        "delta": -0.0032003155905976355
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "FarePerPerson",
+        "roc_auc": 0.8705755174524767,
+        "delta": -0.0059364148274805295
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "AgeGroup",
+        "roc_auc": 0.8739572712495909,
+        "delta": -0.0025546610303663897
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "FamilyCategory",
+        "roc_auc": 0.881869900678678,
+        "delta": 0.005357968398720714
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "CabinKnown",
+        "roc_auc": 0.8762021468604541,
+        "delta": -0.0003097854195032168
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "Deck",
+        "roc_auc": 0.8805872465511964,
+        "delta": 0.004075314271239083
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "TicketGroupSize",
+        "roc_auc": 0.8766551750525104,
+        "delta": 0.00014324277255317597
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "dropped": "AgeKnown",
+        "roc_auc": 0.8788669875346992,
+        "delta": 0.002355055254741889
+      }
+    ]
+  },
+  "encoding": {
+    "rows": [
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "pclass_encoding": "onehot",
+        "age_strategy": "title_group",
+        "roc_auc": 0.869573293013732,
+        "roc_auc_std": 0.024627331892128033,
+        "accuracy": 0.8202304737516005
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "pclass_encoding": "onehot",
+        "age_strategy": "median",
+        "roc_auc": 0.8673148675891623,
+        "roc_auc_std": 0.024036927319202754,
+        "accuracy": 0.8174234216487737
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "pclass_encoding": "ordinal",
+        "age_strategy": "title_group",
+        "roc_auc": 0.8698627603094687,
+        "roc_auc_std": 0.023510601858751597,
+        "accuracy": 0.8216290751502019
+      },
+      {
+        "model": "Logistic Regression",
+        "key": "logistic_regression",
+        "pclass_encoding": "ordinal",
+        "age_strategy": "median",
+        "roc_auc": 0.8672200056996295,
+        "roc_auc_std": 0.022957938990238104,
+        "accuracy": 0.8174135723431497
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "pclass_encoding": "onehot",
+        "age_strategy": "title_group",
+        "roc_auc": 0.8765119322799573,
+        "roc_auc_std": 0.01827123821178469,
+        "accuracy": 0.8174431202600216
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "pclass_encoding": "onehot",
+        "age_strategy": "median",
+        "roc_auc": 0.8780188114161469,
+        "roc_auc_std": 0.017818420733822716,
+        "accuracy": 0.8160543681670441
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "pclass_encoding": "ordinal",
+        "age_strategy": "title_group",
+        "roc_auc": 0.8800582892667531,
+        "roc_auc_std": 0.014293083309071032,
+        "accuracy": 0.8174431202600217
+      },
+      {
+        "model": "Random Forest",
+        "key": "random_forest",
+        "pclass_encoding": "ordinal",
+        "age_strategy": "median",
+        "roc_auc": 0.8799165373695154,
+        "roc_auc_std": 0.016115824266179954,
+        "accuracy": 0.8132276174529697
+      }
+    ]
+  },
+  "n_dev": 712,
+  "cv_folds": 5,
+  "random_state": 42
+}

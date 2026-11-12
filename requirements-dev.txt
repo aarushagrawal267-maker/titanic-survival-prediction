@@ -1,0 +1,6 @@
+-r requirements.txt
+kaggle>=1.6          # only needed for downloading via the Kaggle API
+nbformat>=5.9
+nbclient>=0.10
+ipykernel>=6.29
+playwright>=1.45     # used for screenshot checks of the running app

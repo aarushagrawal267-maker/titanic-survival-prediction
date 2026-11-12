@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────
+#  TITANIC ML LAB — central configuration
+#  Every path is relative to the project root.
+# ─────────────────────────────────────────────────────────────
+project:
+  name: "Titanic ML Lab"
+  tagline: "Passenger Survival Prediction System"
+  random_state: 42
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  samples_dir: data/samples
+  models_dir: models
+  figures_dir: outputs/figures
+  reports_dir: outputs/reports
+  train_file: train.csv
+  test_file: test.csv
+  submission_file: outputs/submission.csv
+
+data:
+  target: Survived
+  id_column: PassengerId
+  expected_train_rows: 891
+  expected_test_rows: 418
+  # SHA-256 of the official Kaggle files (used to confirm a download is the genuine dataset)
+  sha256:
+    train: 4a437fde05fe5264e1701a7387ac6fb75393772ba38bb2c9c566405af5af4bd7
+    test: 5c78320a80dc159b35c408363be46a5d93f078183d539db75ee42a796d6a4e95
+  kaggle_competition: titanic
+  # Public mirrors of the *identical* Kaggle files — used only if Kaggle is unreachable.
+  mirrors:
+    train: https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/train.csv
+    test: https://raw.githubusercontent.com/agconti/kaggle-titanic/master/data/test.csv
+
+split:
+  holdout_size: 0.20      # final holdout — never used for tuning or model selection
+  cv_folds: 5             # StratifiedKFold on the development set
+
+training:
+  primary_metric: roc_auc # model selection metric (never accuracy alone)
+  tie_breaker: f1
+  n_iter: 30              # RandomizedSearchCV candidates per model
+  n_jobs: -1
+  shap_sample_size: 120   # holdout passengers used for the global SHAP summary
+  shap_background_size: 80
+
+features:
+  default_set: engineered # "base" or "engineered"
+  age_strategy: title_group  # "title_group" (median per title) or "median"
+  pclass_encoding: onehot    # "onehot" or "ordinal"
+
+app:
+  survived_color: "#3a8ee6"
+  perished_color: "#e8693a"
