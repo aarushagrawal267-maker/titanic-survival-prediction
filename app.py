@@ -46,10 +46,14 @@ pages = {
     ],
 }
 nav = st.navigation(pages, position="sidebar", expanded=True)
+state.ensure_models_ready()
 
 # ── global sidebar controls ──────────────────────────────────────────
 st.logo(str(ROOT / "assets" / "logo.svg"), size="large", icon_image=str(ROOT / "assets" / "logo_icon.svg"))
 with st.sidebar:
+    if state.demo_mode():
+        st.markdown('<div class="tml-status"><b>Public demo</b> · you can train and experiment freely; '
+                    'shared models and data are never overwritten.</div>', unsafe_allow_html=True)
     st.toggle("Learn mode", value=st.session_state.get("learn_mode", True), key="learn_mode",
               help="Show plain-language explanations of machine-learning concepts on every page.")
     reg = state.get_registry() if state.data_ready() else {}

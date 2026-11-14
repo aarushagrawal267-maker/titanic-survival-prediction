@@ -153,7 +153,7 @@ src/
 components/ship3d/         # custom bidirectional Streamlit component: Three.js ship, ocean, sky, overlays (offline)
 scripts/                   # download_data · validate_data · train_all · make_submission · generate_report
 data/raw/ data/processed/  # Kaggle CSVs (committed) and processed exports
-models/                    # trained pipelines + metadata + run history (created by training; git-ignored)
+models/                    # trained pipelines + metadata + run history (committed; retrained automatically if library versions differ)
 outputs/figures/ outputs/reports/  # report figures, experiments.json
 notebooks/exploratory_analysis.ipynb
 tests/                     # pytest: data, features, preprocessing & leakage, training, predictions, batch, submission, app pages
@@ -253,11 +253,46 @@ The output, `outputs/submission.csv`, has exactly `PassengerId,Survived` and 418
 order as `test.csv`. The file is validated before it is saved. **The leaderboard score is only available by submitting
 at <https://www.kaggle.com/competitions/titanic/submit>**, because Kaggle's test labels are private.
 
+## Deployment
+The repository is deployment-ready. The trained models in `models/` are committed, so the app starts instantly, and
+on Python ≥ 3.12, `requirements.txt` pins the exact library versions they were trained with. If a server ends up with
+different versions, the app notices at start-up and retrains the models once, on its own.
+
+**Public demo mode.** Set `TITANIC_DEMO_MODE=true` (environment variable or Streamlit secret) for any public
+deployment. Visitors can still train models and see the results, but those runs are not saved, so nobody can change
+the shared models or replace the dataset.
+
+### Option A — Streamlit Community Cloud (free, recommended)
+1. Go to <https://share.streamlit.io> and sign in with GitHub.
+2. Click **Create app** → **Deploy a public app from GitHub** and choose:
+   * Repository: `aarushagrawal267-maker/titanic-survival-prediction`
+   * Branch: the branch that holds this code (e.g. `main` after merging)
+   * Main file path: `app.py`
+   * App URL: pick a name, e.g. `titanic-ml-lab`
+3. Open **Advanced settings**:
+   * Python version: **3.13**
+   * Secrets: `TITANIC_DEMO_MODE = "true"`
+4. Click **Deploy**. The first build installs the dependencies (a few minutes). The app then lives at
+   `https://<your-name>.streamlit.app`.
+
+Memory: the app uses about 0.9 GB under load, which fits Community Cloud's limits.
+
+### Option B — Docker (Render, Railway, Fly.io, a VPS…)
+```bash
+docker build -t titanic-ml-lab .
+```
+```bash
+docker run -p 8501:8501 titanic-ml-lab
+```
+The image uses Python 3.13, runs as a non-root user, has a health check at `/_stcore/health`, enables demo mode by
+default and respects the `PORT` variable that most hosts set. On Render, create a **Web Service** from the repository
+with the *Docker* runtime and pick an instance with **at least 1 GB RAM** (the 512 MB free tier is too small).
+
 ## Tests
 ```bash
 pytest
 ```
-80 tests cover:
+85 tests cover:
 * data loading and validation;
 * feature engineering;
 * preprocessing, including **leakage checks** (fold-only statistics, labels never used, disjoint holdout);

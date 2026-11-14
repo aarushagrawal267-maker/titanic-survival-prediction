@@ -5,9 +5,8 @@ __pycache__/
 .venv/
 venv/
 .ipynb_checkpoints/
-# Trained models (re-create with: python scripts/train_all.py)
-models/*
-!models/.gitkeep
+# Trained models ARE committed (so deployments start instantly); only runtime files are ignored
+models/.retrain.lock
 # Generated outputs
 data/processed/*
 !data/processed/.gitkeep
@@ -20,3 +19,6 @@ kaggle.json
 .vscode/
 .idea/
 node_modules/
+
+# Docker
+.dockerignore.bak

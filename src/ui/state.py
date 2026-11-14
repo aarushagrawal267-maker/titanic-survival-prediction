@@ -1,6 +1,7 @@
 """Cached data/model access shared by every page, plus onboarding guards."""
 from __future__ import annotations
 
+import os
 import time
 
 import pandas as pd
@@ -91,6 +92,59 @@ def model_name(key: str | None) -> str:
 def refresh_caches() -> None:
     st.cache_data.clear()
     st.cache_resource.clear()
+
+
+# ── deployment helpers ──────────────────────────────────────────
+def demo_mode() -> bool:
+    """Public-demo mode: visitors can train and experiment, but nothing shared is overwritten.
+
+    Enable with the environment variable ``TITANIC_DEMO_MODE=true`` or the Streamlit secret
+    ``TITANIC_DEMO_MODE = "true"`` (e.g. in Streamlit Community Cloud → Settings → Secrets).
+    """
+    val = os.environ.get("TITANIC_DEMO_MODE")
+    if val is None:
+        try:
+            val = st.secrets.get("TITANIC_DEMO_MODE")
+        except Exception:  # no secrets file
+            val = None
+    return str(val).strip().lower() in ("1", "true", "yes", "on")
+
+
+@st.cache_data(show_spinner=False)
+def _stale(mtime: float) -> list:
+    return model_manager.stale_models()
+
+
+def ensure_models_ready() -> None:
+    """Retrain models that were saved with different library versions (runs once per server).
+
+    Uses a lock file so concurrent visitors don't all retrain at the same time.
+    """
+    if not data_ready():
+        return
+    stale = _stale(registry_mtime())
+    if not stale:
+        return
+    lock = model_manager.models_dir() / ".retrain.lock"
+    if lock.exists() and time.time() - lock.stat().st_mtime < 1200:
+        st.info("The models are being re-trained for this server's library versions — please refresh in a minute.", icon=":material/hourglass_top:")
+        st.stop()
+    from src.train import train_model
+
+    lock.write_text(str(time.time()))
+    try:
+        df = get_train()
+        with st.status("Preparing the models for this server (one-time, ~1–3 min)…", expanded=True) as status:
+            bar = st.progress(0.0)
+            for i, (key, reason) in enumerate(stale):
+                st.write(f"**{model_name(key)}** — {reason}")
+                train_model(df, key, tune=True, n_iter=10, source="auto-retrain",
+                            progress=lambda f, m, i=i: bar.progress(min(1.0, (i + f) / len(stale)), text=f"{model_name(key)}: {m}"))
+            status.update(label="Models ready", state="complete")
+    finally:
+        lock.unlink(missing_ok=True)
+    refresh_caches()
+    st.rerun()
 
 
 # ── onboarding guards ───────────────────────────────────────────

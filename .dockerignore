@@ -1,0 +1,12 @@
+.git
+.venv
+venv
+**/__pycache__
+.pytest_cache
+.ipynb_checkpoints
+notebooks
+tests
+models/.retrain.lock
+outputs/reports/prediction_log.csv
+.streamlit/secrets.toml
+kaggle.json

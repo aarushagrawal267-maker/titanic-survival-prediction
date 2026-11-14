@@ -168,6 +168,38 @@ def best_model_key(metric: str | None = None) -> str | None:
     return max(reg.items(), key=score)[0]
 
 
+def stale_models() -> list[tuple[str, str]]:
+    """Models that should be retrained in this environment: (key, reason).
+
+    Pickled scikit-learn/XGBoost models are only guaranteed to work with the library
+    versions that created them, so a mismatch (e.g. after deploying to a server with
+    newer packages) or any load error marks the model as stale.
+    """
+    import warnings
+
+    current = library_versions()
+    out = []
+    for key in load_registry():
+        try:
+            saved = load_metadata(key).get("versions", {})
+        except Exception as exc:
+            out.append((key, f"unreadable metadata ({exc})"))
+            continue
+        libs = ["scikit-learn"] + (["xgboost"] if key == "xgboost" else [])
+        diff = [f"{lib} {saved.get(lib)} → {current.get(lib)}" for lib in libs if saved.get(lib) != current.get(lib)]
+        if diff:
+            out.append((key, "trained with " + ", ".join(diff)))
+            continue
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("error")  # InconsistentVersionWarning → treat as stale
+                load_pipeline(key, "full")
+                load_pipeline(key, "dev")
+        except Exception as exc:
+            out.append((key, f"failed to load ({type(exc).__name__})"))
+    return out
+
+
 def delete_model(key: str) -> None:
     d = models_dir() / key
     if d.exists():

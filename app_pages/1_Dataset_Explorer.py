@@ -53,7 +53,12 @@ with st.expander("Replace the dataset (upload CSV) · Kaggle download instructio
     u1, u2 = st.columns(2)
     for col, kind in ((u1, "train"), (u2, "test")):
         up = col.file_uploader(f"Upload {kind}.csv", type="csv", key=f"upload_{kind}")
-        if up is not None and col.button(f"Validate & save {kind}.csv", key=f"save_{kind}"):
+        if up is not None and state.demo_mode():
+            from src.data_validation import validate_dataframe as _v
+            r = _v(pd.read_csv(up), kind)
+            (col.success if r.is_valid else col.error)(("Valid" if r.is_valid else "Invalid: " + "; ".join(r.errors))
+                                                     + " — replacing the dataset is disabled in the public demo.")
+        elif up is not None and col.button(f"Validate & save {kind}.csv", key=f"save_{kind}"):
             ok, msgs = data_loader.save_uploaded(up.getvalue(), kind)
             (col.success if ok else col.error)("\n\n".join(msgs))
             if ok:

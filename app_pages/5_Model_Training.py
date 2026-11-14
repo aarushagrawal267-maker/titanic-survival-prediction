@@ -99,11 +99,14 @@ with tab_train:
             t0 = time.time()
             res = train_model(df, key, params=params if mode == "Manual" else None, tune=(mode == "Auto-tune"),
                               n_iter=st.session_state.get("train_niter", 20) if mode == "Auto-tune" else None,
-                              feature_set=fset, scaler=scaler, compute_shap=do_shap, progress=progress, source="app")
-            status.update(label=f"{spec.name} trained in {time.time() - t0:.0f}s and saved", state="complete", expanded=False)
-        state.refresh_caches()
+                              feature_set=fset, scaler=scaler, compute_shap=do_shap, progress=progress, source="app",
+                              save=not state.demo_mode())
+            saved_txt = "shown below (public demo: not saved)" if state.demo_mode() else "saved"
+            status.update(label=f"{spec.name} trained in {time.time() - t0:.0f}s — {saved_txt}", state="complete", expanded=False)
+        if not state.demo_mode():
+            state.refresh_caches()
         st.session_state["last_training"] = {"key": key, "meta": res["meta"], "search": res["evaluation"].get("search_table")}
-        st.toast(f"{spec.name} saved to the model registry", icon="✅")
+        st.toast(f"{spec.name} {'trained (not saved in the public demo)' if state.demo_mode() else 'saved to the model registry'}", icon="✅")
 
     last = st.session_state.get("last_training")
     if last:
@@ -136,11 +139,15 @@ with tab_train:
         note("CV scores of a tuned model are slightly optimistic (the same folds were used to pick the hyper-parameters). "
              "The holdout scores are the unbiased estimate.", "info")
 
-    with st.expander("Train or re-train the entire model zoo"):
-        st.caption("Runs all experiments and tunes all algorithms — the same as `python scripts/train_all.py`.")
-        if st.button("Train all models", key="train_all_btn"):
-            state.train_all_models(df)
-            st.rerun()
+    if state.demo_mode():
+        note("Public demo: your training runs are shown to you but not saved, so other visitors keep using the reference models. "
+             "Clone the repository to train and save your own.", "public")
+    else:
+        with st.expander("Train or re-train the entire model zoo"):
+            st.caption("Runs all experiments and tunes all algorithms — the same as `python scripts/train_all.py`.")
+            if st.button("Train all models", key="train_all_btn"):
+                state.train_all_models(df)
+                st.rerun()
 
 # ═════════════════════════════ OVERFITTING ═════════════════════════════
 with tab_overfit:
