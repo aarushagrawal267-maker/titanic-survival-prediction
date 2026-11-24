@@ -109,6 +109,21 @@ def test_unknown_age_is_allowed(fitted_pipeline):
     assert predict_one(fitted_pipeline, PassengerInput(2, "female", None, 0, 1, 20.0, "S"))["ok"]
 
 
+def test_infant_age_zero_is_allowed(fitted_pipeline):
+    # The form's age slider starts at 0 and real passengers under one year (e.g. #804, 0.42) round to it.
+    r = predict_one(fitted_pipeline, PassengerInput(3, "male", 0, 0, 1, 8.5167, "C"))
+    assert r["ok"], r["errors"]
+    assert 0 <= r["prob_survived"] <= 1
+
+
+def test_non_finite_inputs_are_rejected_not_crashing(fitted_pipeline):
+    for inp in (PassengerInput(1, "male", float("nan"), 0, 0, 30.0, "S"),
+                PassengerInput(1, "male", 30, 0, 0, float("inf"), "S"),
+                PassengerInput(1, "male", 30, 0, 0, float("nan"), "S")):
+        r = predict_one(fitted_pipeline, inp)
+        assert not r["ok"] and len(r["errors"]) == 1
+
+
 def test_what_if_and_similar_passengers(fitted_pipeline, train_df):
     inp = SAMPLE_PROFILES["Fictional · Second-class boy"]
     curve = what_if_curve(fitted_pipeline, inp, "Age", list(range(1, 60, 5)))

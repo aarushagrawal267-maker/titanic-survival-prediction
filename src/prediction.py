@@ -41,7 +41,11 @@ class PassengerInput:
         if self.embarked not in PORTS:
             errors.append("Port must be Southampton (S), Cherbourg (C) or Queenstown (Q).")
         if self.age is not None:
-            if not 0 < self.age <= 100:
+            # 0 is allowed: it stands for an infant under one year (the form's age slider starts at 0
+            # and real passengers such as #804, aged 0.42, round to it).
+            if not np.isfinite(self.age):
+                errors.append("Age must be a number (leave it empty / tick 'Age unknown' if it is not known).")
+            elif not 0 <= self.age <= 100:
                 errors.append("Age must be between 0 and 100.")
             elif self.age > TRAINING_RANGES["Age"][1]:
                 warnings.append(f"Age {self.age:g} is above the oldest passenger in the training data (80) — the model is extrapolating.")
@@ -53,18 +57,20 @@ class PassengerInput:
         if self.parch is not None and self.parch > TRAINING_RANGES["Parch"][1]:
             warnings.append("Parents/children is above the training maximum (6).")
         if self.fare is not None:
-            if self.fare < 0:
+            if not np.isfinite(self.fare):
+                errors.append("Fare must be a finite number (leave it empty if it is not known).")
+            elif self.fare < 0:
                 errors.append("Fare cannot be negative.")
             elif self.fare > TRAINING_RANGES["Fare"][1]:
                 warnings.append("Fare is above the highest fare in the training data (£512.33).")
-            typical = {1: (25, 520), 2: (10, 75), 3: (0, 70)}[self.pclass] if self.pclass in (1, 2, 3) else None
+            typical = {1: (25, 520), 2: (10, 75), 3: (0, 70)}[self.pclass] if self.pclass in (1, 2, 3) and np.isfinite(self.fare) else None
             if typical and not (typical[0] <= self.fare <= typical[1]) and self.fare > 0:
                 warnings.append(f"A fare of £{self.fare:.2f} is unusual for {self.pclass}{'st' if self.pclass == 1 else 'nd' if self.pclass == 2 else 'rd'} class.")
         if self.cabin:
             c = self.cabin.strip().upper()
             if not c[0].isalpha() or c[0] not in "ABCDEFGT":
                 warnings.append("Cabin should start with a deck letter A–G (e.g. C85); deck will be treated as Unknown.")
-        if self.age is not None and self.age < 13 and self.sibsp + self.parch == 0:
+        if self.age is not None and np.isfinite(self.age) and self.age < 13 and (self.sibsp or 0) + (self.parch or 0) == 0:
             warnings.append("A child travelling with no family recorded is rare in the data.")
         return errors, warnings
 
