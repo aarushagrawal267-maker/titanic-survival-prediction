@@ -190,6 +190,11 @@ def stale_models() -> list[tuple[str, str]]:
         if diff:
             out.append((key, "trained with " + ", ".join(diff)))
             continue
+        # The evaluation, comparison and explainability pages read evaluation.joblib, so a
+        # model directory without it (e.g. a partial copy) must be rebuilt, not shown half-broken.
+        if not (models_dir() / key / "evaluation.joblib").exists():
+            out.append((key, "missing evaluation.joblib"))
+            continue
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("error")  # InconsistentVersionWarning → treat as stale

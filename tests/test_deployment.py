@@ -30,6 +30,15 @@ def test_corrupt_model_file_marks_model_stale(tmp_path, monkeypatch, fitted_pipe
     assert model_manager.stale_models()[0][0] == "knn"
 
 
+def test_missing_evaluation_file_marks_model_stale(tmp_path, monkeypatch, fitted_pipeline):
+    """Evaluation/comparison/XAI pages read evaluation.joblib — a model without it is rebuilt at start-up."""
+    monkeypatch.setattr(model_manager, "models_dir", lambda: tmp_path)
+    model_manager.save_model("svm", fitted_pipeline, fitted_pipeline, {"key": "svm", "cv": {}, "holdout": {}}, {})
+    assert model_manager.stale_models() == []
+    (tmp_path / "svm" / "evaluation.joblib").unlink()
+    assert model_manager.stale_models() == [("svm", "missing evaluation.joblib")]
+
+
 def test_demo_mode_reads_environment(monkeypatch):
     from src.ui import state
 
