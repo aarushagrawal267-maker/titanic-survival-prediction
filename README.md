@@ -15,7 +15,7 @@ all in a polished dark-navy web app that runs locally with `streamlit run app.py
 7. [Algorithms](#7-algorithms) · 8. [Evaluation metrics](#8-evaluation-metrics) · 9. [Architecture](#9-project-architecture) ·
 10. [Installation](#10-installation) · 11. [Getting the dataset](#11-getting-the-dataset) · 12. [Running the app](#12-running-the-app) ·
 13. [Training models](#13-training-models) · 14. [Making predictions](#14-making-predictions) · 15. [Kaggle submissions](#15-kaggle-submissions) ·
-16. [Limitations](#16-limitations) · 17. [Future improvements](#17-future-improvements)
+16. [Limitations](#16-limitations) · 17. [Future improvements](#17-future-improvements) · [License](#license)
 
 ---
 
@@ -36,6 +36,13 @@ Highlights of the app:
 | 🎮 **Beat the Model** | Guess the fate of 10 real holdout passengers and compete against the model. |
 | 🏔️ **3D probability landscape** | A survival-probability surface over age × fare. Compare a smooth Logistic Regression with a staircase Decision Tree. |
 | 📚 **Learn mode** | Plain-language explanations of every ML concept, which you can switch on or off in the sidebar. |
+
+### Screenshots
+| Home dashboard | 3D Ship Explorer |
+|---|---|
+| ![Home dashboard](docs/screenshots/home.jpg) | ![3D Ship Explorer](docs/screenshots/ship_explorer_3d.jpg) |
+| **Passenger prediction (boarding pass)** | **Model comparison** |
+| ![Passenger prediction](docs/screenshots/passenger_prediction.jpg) | ![Model comparison](docs/screenshots/model_comparison.jpg) |
 
 ## 2. Problem statement
 Binary classification: given a passenger's ticket class, sex, age, family aboard, fare, port, cabin, name and ticket,
@@ -292,6 +299,9 @@ with the *Docker* runtime and pick an instance with **at least 1 GB RAM** (the 5
 ```bash
 pytest
 ```
+[![Tests](https://github.com/aarushagrawal267-maker/titanic-survival-prediction/actions/workflows/tests.yml/badge.svg)](https://github.com/aarushagrawal267-maker/titanic-survival-prediction/actions/workflows/tests.yml)
+The same suite runs automatically on GitHub Actions (`.github/workflows/tests.yml`) for every push and pull request.
+
 85 tests cover:
 * data loading and validation;
 * feature engineering;
@@ -315,7 +325,14 @@ pytest
 
 ## 17. Future improvements
 Stacking and voting ensembles · nested CV · Optuna/Bayesian tuning · fairness analysis across sex and class ·
-conformal prediction intervals · Docker image and CI · optional real glTF ship model.
+conformal prediction intervals · optional real glTF ship model.
+(A Dockerfile and a GitHub Actions test workflow are already included.)
+
+## License
+The code in this repository is released under the [MIT License](LICENSE).
+Third-party parts keep their own licences: Three.js (MIT, see `components/ship3d/frontend/vendor/three/LICENSE`).
+The Titanic CSV files come from the Kaggle *Titanic: Machine Learning from Disaster* competition and are subject to
+Kaggle's competition rules.
 
 ---
 *In memory of the more than 1,500 passengers and crew who lost their lives on 15 April 1912.*
