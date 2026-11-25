@@ -1,8 +1,8 @@
 # Titanic ML Lab — Project Report
 
-*Generated 2026-11-12 19:11 UTC by `scripts/generate_report.py` from the models trained in this repository. No number in this report was typed by hand.*
+*Generated 2026-11-25 01:45 UTC by `scripts/generate_report.py` from the models trained in this repository. No number in this report was typed by hand.*
 
-Environment: Python 3.13.18 · scikit-learn 1.9.1 · pandas 3.0.5 · NumPy 2.5.3 · XGBoost 3.4.1
+Environment: Python 3.13.18 · scikit-learn 1.9.1 · pandas 3.1.1 · NumPy 2.5.3 · XGBoost 3.4.1
 
 ## 1. Data
 
@@ -113,6 +113,27 @@ Interpretation: removing **Title** costs the most (-0.0042 mean Δ ROC-AUC). Eve
 
 ![ROC](outputs/figures/roc_curves.png)
 
+### Baselines and uncertainty
+
+Percentile bootstrap (2,000 resamples of the 179 holdout passengers). The baselines use no model: the majority class predicts "did not survive" for everyone, and the sex rule predicts survival for every woman and for no man.
+
+| Model | Holdout accuracy (95% CI) | Holdout ROC-AUC (95% CI) | CV − holdout ROC-AUC |
+|---|---|---|---|
+| XGBoost ★ | 0.810 [0.754, 0.866] | 0.844 [0.777, 0.903] | +0.057 |
+| Gradient Boosting | 0.810 [0.749, 0.866] | 0.838 [0.767, 0.900] | +0.062 |
+| Random Forest | 0.821 [0.765, 0.877] | 0.855 [0.784, 0.915] | +0.040 |
+| Decision Tree | 0.827 [0.771, 0.883] | 0.850 [0.783, 0.910] | +0.028 |
+| Support Vector Machine | 0.804 [0.743, 0.860] | 0.825 [0.751, 0.888] | +0.053 |
+| K-Nearest Neighbors | 0.788 [0.726, 0.844] | 0.847 [0.779, 0.905] | +0.027 |
+| Logistic Regression | 0.838 [0.782, 0.888] | 0.866 [0.800, 0.924] | +0.004 |
+| *Baseline: Majority class (everyone did not survive)* | 0.615 [0.542, 0.687] | 0.500 | — |
+| *Baseline: Sex only (female → survived)* | 0.777 [0.715, 0.838] | 0.753 | — |
+
+- 7 of 7 models beat the majority-class baseline (accuracy 0.615). The one-line sex rule is much harder to beat: accuracy 0.777, ROC-AUC 0.753. 7 of 7 models have a higher holdout accuracy than the sex rule, by at most 6.1 points, and every one of their 95% accuracy intervals overlaps the rule's. The models' clearer gain is in ranking passengers (ROC-AUC), which the rule cannot do because it outputs only two values.
+- The 95% interval for the selected model's holdout accuracy is [0.754, 0.866] (standard error ≈ 2.9 points, so a 95% interval is about ±6 points).
+- Holdout ROC-AUC is lower than CV ROC-AUC for 7 of 7 models (mean gap +0.039, largest +0.062 for Gradient Boosting). Part of this is the optimism of choosing hyper-parameters on the same CV folds and part is holdout sampling noise, so quote the holdout numbers, not the CV numbers, as the performance estimate.
+- XGBoost leads Gradient Boosting on mean CV ROC-AUC by 0.0002, far less than the fold-to-fold standard deviation (≈0.02). The selection rule has to pick one, but the two are effectively tied.
+
 ### Tuned hyper-parameters
 
 - **Logistic Regression**: `C=0.5414`, `l1_ratio=1`, `solver=liblinear`
@@ -127,7 +148,7 @@ Interpretation: removing **Title** costs the most (-0.0042 mean Δ ROC-AUC). Eve
 
 Selected by mean CV ROC-AUC (0.901 ± 0.020). On the untouched holdout: accuracy 0.810, precision 0.778, recall 0.710, F1 0.742, ROC-AUC 0.844.
 
-Note: Logistic Regression has the highest *holdout accuracy* (0.838). We deliberately do not select on the holdout (that would turn it into another tuning set) nor on accuracy alone; with 179 passengers, holdout differences of 2–3 points are within sampling noise (≈ ±3 pts standard error).
+Note: Logistic Regression has the highest *holdout accuracy* (0.838). We deliberately do not select on the holdout (that would turn it into another tuning set) nor on accuracy alone; with 179 passengers, holdout differences of 2–3 points are within sampling noise (standard error ≈ 3 points, 95% interval ≈ ±6 points).
 
 ![Confusion matrix](outputs/figures/confusion_matrix_best.png)
 
@@ -153,7 +174,8 @@ Permutation importance (holdout ROC-AUC drop): Name (→ title) (0.132), Fare (0
 
 ## 7. Limitations
 
-- Small data: holdout metrics on 179 passengers have a standard error of roughly ±3 percentage points.
-- CV scores of tuned models are mildly optimistic (the same folds chose the hyper-parameters); nested CV would remove this bias.
+- Small data: holdout accuracy on 179 passengers has a standard error of about 3 percentage points; a 95% interval is about ±6 points (see the bootstrap table in section 4).
+- Modest gain over a trivial rule: "women survived, men did not" already scores 77.7% holdout accuracy.
+- CV scores of tuned models are optimistic: holdout ROC-AUC is on average 0.039 lower (the same folds chose the hyper-parameters, plus holdout noise). Nested CV would remove the selection bias.
 - Models capture historical associations (sex, class, age, family) — not causes — and must not be used to judge individuals.
 - Cabin is missing for 77% and age for 20% of passengers; crew are absent from the dataset.

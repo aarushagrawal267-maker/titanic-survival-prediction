@@ -35,7 +35,7 @@ st.markdown("""
 
 section("Limitations", "03", "report")
 st.markdown("""
-- **Small dataset** — 891 labelled passengers; holdout metrics on 179 people carry roughly ±3 percentage points of uncertainty.
+- **Small dataset** — 891 labelled passengers; holdout accuracy on 179 people has a standard error of about 3 percentage points (a 95% interval of about ±6 points), and the one-line rule "women survived, men did not" already scores about 78% on the same holdout.
 - **Historical, not causal** — models learn associations in 1912 data (e.g. sex, class). They cannot explain *why* anyone survived, and should not be used to judge individuals.
 - **Missing information** — cabin is unknown for 77% of passengers, age for 20%; crew are not in the dataset; cabin location on the ship is only approximated.
 - **Not representative of everyone aboard** — the Kaggle split covers 1,309 of the ≈2,224 people aboard.

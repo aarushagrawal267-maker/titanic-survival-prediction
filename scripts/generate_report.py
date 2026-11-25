@@ -18,11 +18,11 @@ import seaborn as sns  # noqa: E402
 
 from src import config, data_loader, eda, model_manager  # noqa: E402
 from src import explainability as xai  # noqa: E402
-from src.evaluate import METRIC_LABELS, METRICS  # noqa: E402
+from src.evaluate import METRIC_LABELS, METRICS, baseline_predictions, bootstrap_ci, compute_metrics  # noqa: E402
 from src.models import MODEL_ORDER, SPECS  # noqa: E402
 from src.preprocessing import friendly  # noqa: E402
 from src.submission import make_submission, save_submission, validate_submission  # noqa: E402
-from src.train import load_experiments  # noqa: E402
+from src.train import load_experiments, split_data  # noqa: E402
 
 BG, SURF, INK, MUTED, BLUE, ORANGE, BRASS = "#050b1a", "#0d1a33", "#eaf0fa", "#7d8ca8", "#3a8ee6", "#e8693a", "#e3b866"
 CAT = [BLUE, ORANGE, "#1fa883", "#8a7ae6", "#c08a1c", "#d55181"]
@@ -191,6 +191,61 @@ def main() -> int:
                      **{f"Holdout {METRIC_LABELS[x]}": m["holdout"][x] for x in METRICS},
                      "Fit time (s)": m["train_time_s"], "Features": m["feature_set"], "Scaler": m["scaler"]})
     L += [md_table(pd.DataFrame(rows)), "", f"![Holdout metrics]({figs['compare']})", "", f"![CV]({figs['cv']})", "", f"![ROC]({figs['roc']})", ""]
+    # ── baselines, confidence intervals and the CV → holdout gap ──
+    X_dev, X_hold, y_dev, y_hold = split_data(df)
+    unc_rows, gaps, acc_ci = [], {}, {}
+    for k in sorted(keys, key=lambda k: -reg[k]["cv"]["roc_auc_mean"]):
+        ev = model_manager.load_evaluation(k)
+        yv, pv = np.asarray(ev["holdout_y"]), np.asarray(ev["holdout_prob"])
+        acc_lo, acc_hi = acc_ci[k] = bootstrap_ci(yv, pv, "accuracy")
+        auc_lo, auc_hi = bootstrap_ci(yv, pv, "roc_auc")
+        gaps[k] = reg[k]["cv"]["roc_auc_mean"] - reg[k]["holdout"]["roc_auc"]
+        unc_rows.append({"Model": SPECS[k].name + (" ★" if k == best else ""),
+                         "Holdout accuracy (95% CI)": f"{reg[k]['holdout']['accuracy']:.3f} [{acc_lo:.3f}, {acc_hi:.3f}]",
+                         "Holdout ROC-AUC (95% CI)": f"{reg[k]['holdout']['roc_auc']:.3f} [{auc_lo:.3f}, {auc_hi:.3f}]",
+                         "CV − holdout ROC-AUC": f"{gaps[k]:+.3f}"})
+    base_metrics = {}
+    for name, pb in baseline_predictions(X_dev, y_dev, X_hold).items():
+        bm = compute_metrics(y_hold, pb)
+        base_metrics[name] = bm
+        acc_lo, acc_hi = acc_ci[name] = bootstrap_ci(y_hold, pb, "accuracy")
+        unc_rows.append({"Model": f"*Baseline: {name}*",
+                         "Holdout accuracy (95% CI)": f"{bm['accuracy']:.3f} [{acc_lo:.3f}, {acc_hi:.3f}]",
+                         "Holdout ROC-AUC (95% CI)": f"{bm['roc_auc']:.3f}", "CV − holdout ROC-AUC": "—"})
+    maj_name, sex_name = list(base_metrics)
+    sex_acc = base_metrics[sex_name]["accuracy"]
+    n_hold = len(y_hold)
+    mb_acc = reg[best]["holdout"]["accuracy"]
+    se_best = float(np.sqrt(mb_acc * (1 - mb_acc) / n_hold))
+    best_ci = acc_ci[best]
+    ranked = sorted(keys, key=lambda k: -reg[k]["cv"]["roc_auc_mean"])
+    margin = reg[ranked[0]]["cv"]["roc_auc_mean"] - reg[ranked[1]]["cv"]["roc_auc_mean"] if len(ranked) > 1 else float("nan")
+    maj_acc = base_metrics[maj_name]["accuracy"]
+    beat_sex = [k for k in keys if reg[k]["holdout"]["accuracy"] > sex_acc]
+    overlap = all(acc_ci[k][0] <= acc_ci[sex_name][1] for k in beat_sex)
+    n_beat_maj = sum(reg[k]["holdout"]["accuracy"] > maj_acc for k in keys)
+    n_lower = sum(g > 0 for g in gaps.values())
+    best_std = reg[ranked[0]]["cv"]["roc_auc_std"]
+    sex_txt = (f"{len(beat_sex)} of {len(keys)} models have a higher holdout accuracy than the sex rule, by at most "
+               f"{(max(reg[k]['holdout']['accuracy'] for k in beat_sex) - sex_acc) * 100:.1f} points"
+               + (", and every one of their 95% accuracy intervals overlaps the rule's." if overlap else ".")
+               if beat_sex else "No model has a higher holdout accuracy than the sex rule.")
+    L += ["### Baselines and uncertainty", "",
+          f"Percentile bootstrap (2,000 resamples of the {n_hold} holdout passengers). The baselines use no model: the majority class "
+          "predicts \"did not survive\" for everyone, and the sex rule predicts survival for every woman and for no man.", "",
+          md_table(pd.DataFrame(unc_rows)), "",
+          f"- {n_beat_maj} of {len(keys)} models beat the majority-class baseline (accuracy {maj_acc:.3f}). "
+          f"The one-line sex rule is much harder to beat: accuracy {sex_acc:.3f}, ROC-AUC {base_metrics[sex_name]['roc_auc']:.3f}. "
+          f"{sex_txt} The models' clearer gain is in ranking passengers (ROC-AUC), which the rule cannot do because it outputs only two values.",
+          f"- The 95% interval for the selected model's holdout accuracy is [{best_ci[0]:.3f}, {best_ci[1]:.3f}] "
+          f"(standard error ≈ {se_best * 100:.1f} points, so a 95% interval is about ±{1.96 * se_best * 100:.0f} points).",
+          f"- Holdout ROC-AUC is lower than CV ROC-AUC for {n_lower} of {len(keys)} models (mean gap {np.mean(list(gaps.values())):+.3f}, "
+          f"largest {max(gaps.values()):+.3f} for {SPECS[max(gaps, key=gaps.get)].name}). Part of this is the optimism of choosing "
+          "hyper-parameters on the same CV folds and part is holdout sampling noise, so quote the holdout numbers, not the CV numbers, "
+          "as the performance estimate.",
+          f"- {SPECS[ranked[0]].name} leads {SPECS[ranked[1]].name} on mean CV ROC-AUC by {margin:.4f}"
+          + (f", far less than the fold-to-fold standard deviation (≈{best_std:.2f}). The selection rule has to pick one, "
+             "but the two are effectively tied." if margin < best_std else "."), ""]
     L += ["### Tuned hyper-parameters", ""]
     for k in keys:
         bp = ", ".join(f"`{p}={v:.4g}`" if isinstance(v, float) else f"`{p}={v}`" for p, v in (reg[k].get("best_params") or {}).items())
@@ -204,7 +259,7 @@ def main() -> int:
     if best_holdout_acc != best:
         L += [f"Note: {SPECS[best_holdout_acc].name} has the highest *holdout accuracy* ({reg[best_holdout_acc]['holdout']['accuracy']:.3f}). "
               "We deliberately do not select on the holdout (that would turn it into another tuning set) nor on accuracy alone; with 179 passengers, "
-              "holdout differences of 2–3 points are within sampling noise (≈ ±3 pts standard error).", ""]
+              f"holdout differences of 2–3 points are within sampling noise (standard error ≈ {se_best * 100:.0f} points, 95% interval ≈ ±{1.96 * se_best * 100:.0f} points).", ""]
     L += [f"![Confusion matrix]({figs['cm']})", ""]
     rep = pd.DataFrame(evb["classification_report"]).T.reset_index().rename(columns={"index": "class"})
     L += [md_table(rep[["class", "precision", "recall", "f1-score", "support"]]), ""]
@@ -223,8 +278,11 @@ def main() -> int:
               "**The Kaggle leaderboard score is not known locally** — test labels are private. Submit the file at "
               "https://www.kaggle.com/competitions/titanic/submit to obtain it. Expect it to differ from the validation estimates above.", ""]
     L += ["## 7. Limitations", "",
-          "- Small data: holdout metrics on 179 passengers have a standard error of roughly ±3 percentage points.",
-          "- CV scores of tuned models are mildly optimistic (the same folds chose the hyper-parameters); nested CV would remove this bias.",
+          f"- Small data: holdout accuracy on {n_hold} passengers has a standard error of about {se_best * 100:.0f} percentage points; "
+          f"a 95% interval is about ±{1.96 * se_best * 100:.0f} points (see the bootstrap table in section 4).",
+          f"- Modest gain over a trivial rule: \"women survived, men did not\" already scores {sex_acc:.1%} holdout accuracy.",
+          f"- CV scores of tuned models are optimistic: holdout ROC-AUC is on average {np.mean(list(gaps.values())):.3f} lower "
+          "(the same folds chose the hyper-parameters, plus holdout noise). Nested CV would remove the selection bias.",
           "- Models capture historical associations (sex, class, age, family) — not causes — and must not be used to judge individuals.",
           "- Cabin is missing for 77% and age for 20% of passengers; crew are absent from the dataset.", ""]
     (config.PROJECT_ROOT / "PROJECT_REPORT.md").write_text("\n".join(L))

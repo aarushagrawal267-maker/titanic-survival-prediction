@@ -70,6 +70,61 @@ def full_evaluation(y_true, y_prob, threshold: float = 0.5) -> dict:
     }
 
 
+def bootstrap_ci(y_true, y_prob, metric: str, n_boot: int = 2000, level: float = 0.95,
+                 threshold: float = 0.5, seed: int = RANDOM_STATE) -> tuple[float, float]:
+    """Percentile bootstrap confidence interval for one holdout metric.
+
+    Passengers are resampled with replacement; resamples that contain a single class
+    (ROC-AUC undefined) are skipped. With ~180 passengers these intervals are wide —
+    that width is the honest uncertainty of a single holdout estimate.
+    """
+    if metric not in METRICS:
+        raise ValueError(f"unknown metric {metric!r}")
+    y_true = np.asarray(y_true).astype(int)
+    y_prob = np.asarray(y_prob, dtype=float)
+    if len(y_true) == 0 or len(y_true) != len(y_prob):
+        raise ValueError("bootstrap_ci needs non-empty, aligned labels and probabilities")
+    y_pred = (y_prob >= threshold).astype(int)
+
+    def score(yt, yp, pr) -> float:  # one metric only — computing all five per resample is ~10x slower
+        if metric == "roc_auc":
+            return float(roc_auc_score(yt, pr))
+        tp = int(((yp == 1) & (yt == 1)).sum())
+        if metric == "accuracy":
+            return float((yp == yt).mean())
+        if metric == "precision":
+            return tp / max(int(yp.sum()), 1)
+        if metric == "recall":
+            return tp / max(int(yt.sum()), 1)
+        denom = int(yp.sum()) + int(yt.sum())
+        return 2 * tp / denom if denom else 0.0
+
+    rng = np.random.default_rng(seed)
+    vals = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(y_true), len(y_true))
+        if len(np.unique(y_true[idx])) < 2:
+            continue
+        vals.append(score(y_true[idx], y_pred[idx], y_prob[idx]))
+    alpha = (1 - level) / 2
+    return float(np.quantile(vals, alpha)), float(np.quantile(vals, 1 - alpha))
+
+
+def baseline_predictions(X_dev, y_dev, X_eval) -> dict[str, np.ndarray]:
+    """Trivial reference "models" that every trained model should be compared against.
+
+    * Majority class — predict the development-set survival rate for everyone
+      (so every passenger is classified "did not survive"; ROC-AUC is 0.5 by definition).
+    * Sex only — the one-line rule "women survived, men did not" (probability 1 / 0).
+    Neither looks at the evaluation labels.
+    """
+    rate = float(np.asarray(y_dev, dtype=float).mean())
+    return {
+        "Majority class (everyone did not survive)": np.full(len(X_eval), rate),
+        "Sex only (female → survived)": (X_eval["Sex"].astype(str).str.lower() == "female").to_numpy(dtype=float),
+    }
+
+
 def threshold_table(y_true, y_prob, thresholds=None) -> pd.DataFrame:
     thresholds = np.round(np.arange(0.05, 0.96, 0.05), 2) if thresholds is None else thresholds
     rows = []

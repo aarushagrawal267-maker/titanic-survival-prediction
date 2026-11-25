@@ -8,7 +8,7 @@ import pytest
 from src import explainability as xai
 from src import model_manager
 from src.batch_prediction import drift_report, read_csv, score_batch, template_csv
-from src.evaluate import compute_metrics, full_evaluation, threshold_table
+from src.evaluate import baseline_predictions, bootstrap_ci, compute_metrics, full_evaluation, threshold_table
 from src.prediction import SAMPLE_PROFILES, PassengerInput, SimilarPassengerIndex, predict_one, what_if_curve
 from src.submission import make_submission, validate_submission
 from src.train import train_model
@@ -81,6 +81,37 @@ def test_metrics_and_curves():
     assert ev["roc"]["fpr"][0] == 0 and ev["roc"]["tpr"][-1] == 1
     tt = threshold_table(y, p)
     assert (tt["tp"] + tt["fn"] == 3).all()
+
+
+def test_bootstrap_ci_brackets_point_estimate_and_matches_metric_definitions():
+    rng = np.random.default_rng(0)
+    y = rng.integers(0, 2, 200)
+    p = np.clip(0.6 * y + rng.normal(0.2, 0.25, 200), 0, 1)
+    point = compute_metrics(y, p)
+    for metric in ("accuracy", "precision", "recall", "f1", "roc_auc"):
+        lo, hi = bootstrap_ci(y, p, metric, n_boot=300)
+        assert 0 <= lo <= point[metric] <= hi <= 1, metric
+    # with a single resample the interval collapses to that resample's score: the fast scorer must match sklearn
+    idx = np.random.default_rng(7).integers(0, len(y), len(y))
+    for metric in ("accuracy", "precision", "recall", "f1", "roc_auc"):
+        lo, hi = bootstrap_ci(y, p, metric, n_boot=1, seed=7)
+        assert lo == pytest.approx(hi) == pytest.approx(compute_metrics(y[idx], p[idx])[metric]), metric
+    with pytest.raises(ValueError):
+        bootstrap_ci(y, p, "log_loss")
+
+
+def test_baselines_use_no_labels_and_match_known_holdout_values(train_df):
+    from src.train import split_data
+
+    X_dev, X_hold, y_dev, y_hold = split_data(train_df)
+    base = baseline_predictions(X_dev, y_dev, X_hold)
+    majority, sex_rule = base.values()
+    assert np.allclose(majority, y_dev.mean())  # constant → everyone predicted "did not survive"
+    assert compute_metrics(y_hold, majority)["accuracy"] == pytest.approx(1 - y_hold.mean())
+    assert set(np.unique(sex_rule)) <= {0.0, 1.0}
+    assert (sex_rule == (X_hold["Sex"] == "female").to_numpy()).all()
+    # documented in README/PROJECT_REPORT: the sex rule scores 0.777 accuracy on the 179-passenger holdout
+    assert compute_metrics(y_hold, sex_rule)["accuracy"] == pytest.approx(139 / 179)
 
 
 # ── single predictions ──────────────────────────────────────────────
