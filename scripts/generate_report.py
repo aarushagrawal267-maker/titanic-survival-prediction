@@ -243,9 +243,9 @@ def main() -> int:
           f"largest {max(gaps.values()):+.3f} for {SPECS[max(gaps, key=gaps.get)].name}). Part of this is the optimism of choosing "
           "hyper-parameters on the same CV folds and part is holdout sampling noise, so quote the holdout numbers, not the CV numbers, "
           "as the performance estimate.",
-          f"- {SPECS[ranked[0]].name} leads {SPECS[ranked[1]].name} on mean CV ROC-AUC by {margin:.4f}"
-          + (f", far less than the fold-to-fold standard deviation (≈{best_std:.2f}). The selection rule has to pick one, "
-             "but the two are effectively tied." if margin < best_std else "."), ""]
+          *([f"- {SPECS[ranked[0]].name} leads {SPECS[ranked[1]].name} on mean CV ROC-AUC by {margin:.4f}"
+             + (f", far less than the fold-to-fold standard deviation (≈{best_std:.2f}). The selection rule has to pick one, "
+                "but the two are effectively tied." if margin < best_std else ".")] if len(ranked) > 1 else []), ""]
     L += ["### Tuned hyper-parameters", ""]
     for k in keys:
         bp = ", ".join(f"`{p}={v:.4g}`" if isinstance(v, float) else f"`{p}={v}`" for p, v in (reg[k].get("best_params") or {}).items())

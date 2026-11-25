@@ -98,6 +98,8 @@ def test_bootstrap_ci_brackets_point_estimate_and_matches_metric_definitions():
         assert lo == pytest.approx(hi) == pytest.approx(compute_metrics(y[idx], p[idx])[metric]), metric
     with pytest.raises(ValueError):
         bootstrap_ci(y, p, "log_loss")
+    with pytest.raises(ValueError, match="both classes"):  # single-class labels: clear error, not an IndexError
+        bootstrap_ci(np.zeros(10), np.full(10, 0.3), "accuracy")
 
 
 def test_baselines_use_no_labels_and_match_known_holdout_values(train_df):

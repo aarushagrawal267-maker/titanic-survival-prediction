@@ -106,6 +106,8 @@ def bootstrap_ci(y_true, y_prob, metric: str, n_boot: int = 2000, level: float =
         if len(np.unique(y_true[idx])) < 2:
             continue
         vals.append(score(y_true[idx], y_pred[idx], y_prob[idx]))
+    if not vals:
+        raise ValueError("bootstrap_ci needs labels from both classes")
     alpha = (1 - level) / 2
     return float(np.quantile(vals, alpha)), float(np.quantile(vals, 1 - alpha))
 
