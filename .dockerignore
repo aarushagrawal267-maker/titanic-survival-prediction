@@ -10,3 +10,16 @@ models/.retrain.lock
 outputs/reports/prediction_log.csv
 .streamlit/secrets.toml
 kaggle.json
+.kaggle
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.sqlite
+*.sqlite3
+*.db
+node_modules

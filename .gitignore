@@ -4,6 +4,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+env/
+.env/
 .ipynb_checkpoints/
 # Trained models ARE committed (so deployments start instantly); only runtime files are ignored
 models/.retrain.lock
@@ -11,9 +13,25 @@ models/.retrain.lock
 data/processed/*
 !data/processed/.gitkeep
 outputs/reports/prediction_log.csv
-# Secrets
+# Secrets (never commit credentials; .env.example is the only allowed template)
 kaggle.json
+.kaggle/
 .streamlit/secrets.toml
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+# Data dumps / local databases (the public Kaggle CSVs in data/raw are committed on purpose)
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
 # OS / editors
 .DS_Store
 .vscode/
