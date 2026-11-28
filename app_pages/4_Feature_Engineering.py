@@ -12,7 +12,7 @@ from src.preprocessing import friendly
 from src.train import load_experiments
 from src.ui import charts, state
 from src.ui.components import card, kpi_tiles, learn, note, page_header, section
-from src.ui.theme import BRASS, PERISHED, SURVIVED, VIOLET
+from src.ui.theme import BRASS, SURVIVED, VIOLET
 
 page_header("Data · 04", "Feature Engineering",
             "Ten new features derived from names, tickets, cabins and family counts — and honest experiments showing which of them actually help.")
@@ -109,7 +109,7 @@ if exp.get("feature_sets"):
     piv = fs.pivot_table(index="model", columns="feature_set", values="roc_auc")
     piv["gain"] = piv["engineered"] - piv["base"]
     kpi_tiles([{"label": m, "value": f"{g * 100:+.1f} pts", "sub": f"{piv.loc[m, 'base']:.3f} → {piv.loc[m, 'engineered']:.3f}",
-                "icon": "trending_up" if g > 0 else "trending_down", "accent": SURVIVED if g > 0 else PERISHED} for m, g in piv["gain"].items()])
+                "icon": "trending_up" if g > 0 else "trending_down", "tone": "survived" if g > 0 else "perished"} for m, g in piv["gain"].items()])
 
     section("Ablation — remove one feature at a time", "04", "content_cut")
     ab = pd.DataFrame(exp["ablation"]["rows"])

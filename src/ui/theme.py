@@ -174,6 +174,8 @@ hr { border-color: var(--line) !important; }
 .tml-kpi .label { color: var(--muted); font-size: 13px; font-weight: 400; }
 .tml-kpi .value { margin-top: auto !important; font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--ink); margin-top: 4px; line-height: 1.15; font-variant-numeric: tabular-nums lining-nums; }
 .tml-kpi .value.small { font-size: 22px; margin-top: 8px; overflow-wrap: anywhere; }
+.tml-kpi .value.tone-survived { color: var(--survived); }
+.tml-kpi .value.tone-perished { color: var(--perished); }
 .tml-kpi .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
 
 .tml-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }

@@ -186,7 +186,7 @@ with tab_overfit:
             {"label": "Training accuracy", "value": f"{row['train']:.1%}", "icon": "school", "accent": BRASS},
             {"label": "Validation accuracy", "value": f"{row['val']:.1%}", "icon": "verified", "accent": SURVIVED},
             {"label": "Overfitting gap", "value": f"{gap * 100:.1f} pts", "icon": "warning" if gap > 0.06 else "check_circle",
-             "sub": "large gap = memorising" if gap > 0.06 else "healthy", "accent": PERISHED if gap > 0.06 else SURVIVED},
+             "sub": "large gap = memorising" if gap > 0.06 else "healthy", "tone": "perished" if gap > 0.06 else "survived"},
         ])
         st.caption(f"Best validation accuracy at depth **{best_d}**.")
     if depth <= 4:
@@ -238,9 +238,9 @@ with tab_switch:
         ref_auc, ref_acc, _ = quick_cv(sw_model, tuple(), state.train_mtime())
         kpi_tiles([
             {"label": "CV ROC-AUC", "value": f"{auc:.3f}", "sub": f"{(auc - ref_auc) * 100:+.1f} pts vs all features (± {std:.3f})", "icon": "insights",
-             "accent": SURVIVED if auc >= ref_auc - 0.002 else PERISHED},
+             "tone": "survived" if auc >= ref_auc - 0.002 else "perished"},
             {"label": "CV accuracy", "value": f"{acc:.1%}", "sub": f"{(acc - ref_acc) * 100:+.1f} pts vs all features", "icon": "check_circle",
-             "accent": SURVIVED if acc >= ref_acc - 0.002 else PERISHED},
+             "tone": "survived" if acc >= ref_acc - 0.002 else "perished"},
             {"label": "Features used", "count_to": len(chosen), "sub": f"{len(drop)} switched off", "icon": "toggle_on", "accent": BRASS},
         ])
         st.caption("Default hyper-parameters, development set only. Try switching off Sex and Title together to see how much the models rely on them.")

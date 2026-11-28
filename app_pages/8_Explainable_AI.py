@@ -116,12 +116,12 @@ with tabs[3]:
         prob = float(pipe_dev.predict_proba(row.drop(columns=["Survived"]))[0, 1])
         actual = int(row["Survived"].iloc[0])
         kpi_tiles([
-            {"label": "Model estimate", "value": f"{prob:.0%}", "icon": "query_stats", "accent": SURVIVED if prob >= 0.5 else PERISHED,
+            {"label": "Model estimate", "value": f"{prob:.0%}", "icon": "query_stats", "tone": "survived" if prob >= 0.5 else "perished",
              "sub": "Predicted: survived" if prob >= 0.5 else "Predicted: did not survive"},
-            {"label": "Actual outcome", "value": "Survived" if actual else "Did not survive", "icon": "history_edu", "accent": SURVIVED if actual else PERISHED},
+            {"label": "Actual outcome", "value": "Survived" if actual else "Did not survive", "icon": "history_edu", "tone": "survived" if actual else "perished"},
             {"label": "Base value", "value": f"{contrib.attrs['base_value']:.0%}", "icon": "horizontal_rule", "sub": "average estimate", "accent": BRASS},
             {"label": "Model was", "value": "Right" if int(prob >= 0.5) == actual else "Wrong", "icon": "check_circle" if int(prob >= 0.5) == actual else "cancel",
-             "accent": SURVIVED if int(prob >= 0.5) == actual else PERISHED},
+             "tone": "survived" if int(prob >= 0.5) == actual else "perished"},
         ])
         w1, w2 = st.columns([1.4, 1])
         with w1:

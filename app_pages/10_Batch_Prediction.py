@@ -52,7 +52,7 @@ section("3 · Validation", "03", "rule")
 v1, v2 = st.columns([1, 1.6])
 with v1:
     kpi_tiles([{"label": "Rows", "count_to": report["rows"], "icon": "table_rows", "accent": BRASS},
-               {"label": "Status", "value": "Valid" if report["valid"] else "Invalid", "icon": "rule", "accent": SURVIVED if report["valid"] else PERISHED}])
+               {"label": "Status", "value": "Valid" if report["valid"] else "Invalid", "icon": "rule", "tone": "survived" if report["valid"] else "perished"}])
 with v2:
     for e in report["errors"]:
         st.error(e)

@@ -38,9 +38,10 @@ def section(title: str, num: str | None = None, icon_name: str | None = None) ->
 
 
 def kpi_tiles(items: list[dict]) -> None:
-    """items: {label, value, sub?, count_to? (int, shown with thousands separators)}.
+    """items: {label, value, sub?, count_to? (int, shown with thousands separators), tone?}.
 
     The row is deliberately neutral: `icon` and `accent` keys are accepted for compatibility but not drawn.
+    `tone` ("survived" | "perished") colours the value when it carries state, e.g. valid/invalid or a gain/loss.
     """
     cards = []
     for it in items:
@@ -49,10 +50,11 @@ def kpi_tiles(items: list[dict]) -> None:
         else:
             val = esc(it["value"])
         long_cls = " small" if it.get("count_to") is None and len(str(it.get("value", ""))) >= 7 else ""
+        tone = f" tone-{it['tone']}" if it.get("tone") in ("survived", "perished") else ""
         cards.append(f"""
         <div class="tml-kpi">
           <div class="label">{esc(it['label'])}</div>
-          <div class="value{long_cls}">{val}</div>
+          <div class="value{long_cls}{tone}">{val}</div>
           {f'<div class="sub">{it["sub"]}</div>' if it.get('sub') else ''}
         </div>""")
     _md(f'<div class="tml-grid">{"".join(cards)}</div>')
