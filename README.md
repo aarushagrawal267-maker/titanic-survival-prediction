@@ -5,6 +5,14 @@ Explore the data, engineer features, train and compare seven algorithms, look in
 explainable AI, predict survival for any passenger profile, and walk around an interactive **3D model of the ship** —
 all in a polished dark-navy web app that runs locally with `streamlit run app.py`.
 
+**Live demo:** https://huggingface.co/spaces/agrawalaarush08/titanic-ml-lab
+
+> The live demo is a **browser-only build**: the app runs entirely in your browser (Python compiled to WebAssembly),
+> so the first load takes about 30–60 seconds. It serves the six scikit-learn models, which were checked to give the
+> same survival probabilities in the browser as the committed models (largest difference 7.9 × 10⁻¹⁵ over all 1,309
+> passengers). Model training, the XGBoost model and SHAP explanations of custom profiles need the full app —
+> see [Browser demo](#browser-demo).
+
 > **Predictions are statistical estimates learned from historical data — not statements about any real individual.**
 
 ---
@@ -310,6 +318,25 @@ docker run -p 8501:8501 titanic-ml-lab
 The image uses Python 3.13, runs as a non-root user, has a health check at `/_stcore/health`, enables demo mode by
 default and respects the `PORT` variable that most hosts set. On Render, create a **Web Service** from the repository
 with the *Docker* runtime and pick an instance with **at least 1 GB RAM** (the 512 MB free tier is too small).
+
+### Browser demo
+The live demo is a static site built by `browser_demo/build.py` and hosted as a free *static* Hugging Face Space. It
+runs this same Streamlit app in the browser with [stlite](https://github.com/whitphx/stlite) (Pyodide 314.0.3:
+Python 3.14, scikit-learn 1.8.0), with `TITANIC_BROWSER_DEMO=1`. Because the browser's libraries are older than the
+pinned ones, nothing is shipped unless it was checked:
+* **Models.** `browser_demo/verify_models.py` writes every committed pipeline's probabilities for all 1,309 Kaggle
+  passengers; it was run with the pinned libraries and inside the browser runtime (`browser_demo/verify.html`), and the
+  largest differences are recorded in `browser_demo/verified_models.json`. The six scikit-learn models match (≤ 7.9 × 10⁻¹⁵);
+  XGBoost does not (0.118, the browser has XGBoost 2.1.4), so it is left out of the demo.
+* **Explanations.** The SHAP library cannot run in the browser. The demo shows the real SHAP values stored at training
+  time (Explainable AI → SHAP summary and *Explain a passenger*, 120 holdout passengers) and no explanation for custom
+  profiles, rather than an approximation.
+* **3D Ship Explorer.** Its out-of-fold predictions need refitting, so `build.py` computes them with the pinned
+  libraries, exactly as the page does in the full app.
+* **Data.** The Kaggle CSVs are not shipped; the browser downloads them from the checksum-verified mirror on first use.
+* Model training is hidden; it needs the full app.
+
+To rebuild: `python browser_demo/build.py`, then upload `browser_demo/dist/` to a static Space.
 
 ## Tests
 ```bash
