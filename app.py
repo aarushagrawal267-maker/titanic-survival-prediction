@@ -14,7 +14,7 @@ import streamlit as st  # noqa: E402
 from src.ui import state  # noqa: E402
 from src.ui.theme import inject_theme  # noqa: E402
 
-st.set_page_config(page_title="Titanic ML Lab", page_icon="🚢", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Titanic ML Lab", page_icon=str(ROOT / "assets" / "logo_icon.svg"), layout="wide", initial_sidebar_state="auto")
 inject_theme()
 
 P = "app_pages/"
