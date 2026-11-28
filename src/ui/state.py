@@ -110,6 +110,24 @@ def demo_mode() -> bool:
     return str(val).strip().lower() in ("1", "true", "yes", "on")
 
 
+@st.cache_resource(show_spinner=False, ttl=600)
+def _download_dataset_once() -> tuple[str, ...]:
+    return tuple(data_loader.ensure_dataset())
+
+
+def ensure_dataset_present() -> None:
+    """Fetch the Kaggle CSVs on first launch.
+
+    They are not stored in the repository (Kaggle's competition rules do not allow redistributing them), so a fresh
+    server downloads them once: Kaggle API if configured, otherwise a public mirror whose files must match Kaggle's
+    SHA-256 checksums. At most one attempt every 10 minutes; if it fails, the pages show the manual options.
+    """
+    if config.raw_file("train").exists() and config.raw_file("test").exists():
+        return
+    with st.spinner("Downloading the Kaggle Titanic dataset (first launch only)…"):
+        _download_dataset_once()
+
+
 @st.cache_data(show_spinner=False)
 def _stale(mtime: float) -> list:
     return model_manager.stale_models()

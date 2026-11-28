@@ -16,6 +16,9 @@ COPY . .
 # Run as a non-root user that can still write models/ and outputs/ (needed if models are re-trained)
 RUN useradd --create-home --uid 1000 app && chown -R app:app /app
 USER app
+# Bake the checksum-verified Kaggle CSVs into the image (they are not in the repository; the app also fetches
+# them on first launch if this step had no network access)
+RUN python scripts/download_data.py --source mirror || echo "Dataset will be downloaded on first launch"
 
 EXPOSE 8501
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD python -c "import os,urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\",\"8501\")}/_stcore/health')" || exit 1

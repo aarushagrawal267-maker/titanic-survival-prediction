@@ -17,5 +17,7 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Download the Kaggle Titanic CSVs (checksum-verified)
+        run: python scripts/download_data.py --source mirror
       - name: Run tests
         run: pytest -q

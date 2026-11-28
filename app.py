@@ -46,6 +46,7 @@ pages = {
     ],
 }
 nav = st.navigation(pages, position="sidebar", expanded=True)
+state.ensure_dataset_present()
 state.ensure_models_ready()
 
 # ── global sidebar controls ──────────────────────────────────────────

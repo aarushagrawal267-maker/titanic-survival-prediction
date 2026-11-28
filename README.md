@@ -172,7 +172,7 @@ src/
   ui/  theme.py (CSS design system) · components.py (cards, boarding pass…) · charts.py (Plotly theme) · state.py (caching) · ship.py
 components/ship3d/         # custom bidirectional Streamlit component: Three.js ship, ocean, sky, overlays (offline)
 scripts/                   # download_data · validate_data · train_all · make_submission · generate_report
-data/raw/ data/processed/  # Kaggle CSVs (committed) and processed exports
+data/raw/ data/processed/  # Kaggle CSVs (downloaded, not committed) and processed exports
 models/                    # trained pipelines + metadata + run history (committed; retrained automatically if library versions differ)
 outputs/figures/ outputs/reports/  # report figures, experiments.json
 notebooks/exploratory_analysis.ipynb
@@ -211,13 +211,16 @@ pip install -r requirements.txt
 Optional extras (Kaggle API, notebook execution, screenshot tooling): `pip install -r requirements-dev.txt`.
 
 ## 11. Getting the dataset
-`data/raw/train.csv` and `data/raw/test.csv` are already included in the repository. To check or re-acquire them:
+`train.csv` and `test.csv` are **not stored in this repository**: Kaggle's competition rules do not allow
+redistributing the competition data. They are fetched on demand instead: the app downloads them automatically on its
+first launch (and `pytest` does the same on a fresh clone). To fetch them yourself:
 ```bash
 python scripts/download_data.py
 ```
 This tries, in order: local files → the **Kaggle API** (if `~/.kaggle/kaggle.json` or `KAGGLE_USERNAME`/`KAGGLE_KEY` is set)
-→ a public mirror of the identical files, accepted only if the SHA-256 checksum matches Kaggle's. You can also upload the
-CSVs in the app (Dataset Explorer page) or download them manually:
+→ a public mirror of the identical files ([`agconti/kaggle-titanic`](https://github.com/agconti/kaggle-titanic),
+Apache-2.0), accepted only if the SHA-256 checksum matches Kaggle's, so the data is byte-for-byte the official files.
+You can also upload the CSVs in the app (Dataset Explorer page) or download them manually:
 1. Sign in at kaggle.com and open <https://www.kaggle.com/competitions/titanic/data>.
 2. Accept the rules and click **Download All**.
 3. Copy `train.csv` and `test.csv` into `data/raw/`.
@@ -349,7 +352,8 @@ conformal prediction intervals · optional real glTF ship model.
 The code in this repository is released under the [MIT License](LICENSE).
 Third-party parts keep their own licences: Three.js (MIT, see `components/ship3d/frontend/vendor/three/LICENSE`).
 The Titanic CSV files come from the Kaggle *Titanic: Machine Learning from Disaster* competition and are subject to
-Kaggle's competition rules.
+Kaggle's competition rules, so they are not redistributed here; they are downloaded at run time (see
+[Getting the dataset](#11-getting-the-dataset)).
 
 ---
 *In memory of the more than 1,500 passengers and crew who lost their lives on 15 April 1912.*

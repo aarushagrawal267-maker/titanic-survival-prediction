@@ -8,6 +8,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.data_loader import load_test, load_train  # noqa: E402
+from src import config, data_loader  # noqa: E402
+
+# The Kaggle CSVs are not committed; fetch the checksum-verified files once if this is a fresh clone.
+if not (config.raw_file("train").exists() and config.raw_file("test").exists()):
+    data_loader.ensure_dataset()
 from src.models import get_spec  # noqa: E402
 from src.preprocessing import build_pipeline  # noqa: E402
 
