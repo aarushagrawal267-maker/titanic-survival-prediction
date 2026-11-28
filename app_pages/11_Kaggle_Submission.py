@@ -53,7 +53,7 @@ if "kg_sub" in st.session_state:
         ("Survived contains only integers 0 or 1", sub["Survived"].isin([0, 1]).all() and pd.api.types.is_integer_dtype(sub["Survived"])),
         ("No missing values", not sub.isna().any().any()),
     ]
-    st.markdown("\n".join(f"- {'✅' if ok else '❌'} {label}" for label, ok in checks))
+    st.markdown("\n".join(f"- {':green[✔]' if ok else ':red[✘]'} {label}" for label, ok in checks))
     if errs:
         for e in errs:
             st.error(e)

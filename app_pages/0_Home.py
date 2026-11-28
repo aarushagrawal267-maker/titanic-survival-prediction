@@ -6,7 +6,7 @@ from src.evaluate import METRIC_LABELS
 from src.ui import charts, state
 from src.ui.components import disclaimer, flow, kpi_tiles, learn, note, pill, section
 from src.ui.ship import class_zones, render_ship
-from src.ui.theme import BRASS, PERISHED, SURVIVED, VIOLET
+from src.ui.theme import PERISHED, SURVIVED
 
 df = state.require_data()
 ov = eda.overview(df)
@@ -15,11 +15,11 @@ best = state.best_key()
 
 st.markdown(f"""
 <div class="tml-hero">
-  <div class="tml-eyebrow"><span class="dot"></span>Passenger survival prediction system</div>
+  <div class="tml-eyebrow">Passenger survival prediction</div>
   <h1>Titanic ML Lab</h1>
   <div class="tag">An end-to-end machine-learning laboratory built on the historical passenger records of RMS Titanic —
   explore the data, train and compare seven algorithms, look inside their decisions, and estimate survival chances for any passenger profile.</div>
-  <div class="chips">{pill(f"{ov['passengers']:,} real passenger records", "brass")}{pill("7 algorithms")}{pill("Leakage-safe pipelines")}{pill("SHAP explainability")}{pill("3D ship explorer")}</div>
+  <div class="chips">{pill(f"{ov['passengers']:,} real passenger records")}{pill("7 algorithms")}{pill("Leakage-safe pipelines")}{pill("SHAP explainability")}{pill("3D ship explorer")}</div>
 </div>""", unsafe_allow_html=True)
 
 st.write("")
@@ -28,14 +28,14 @@ render_ship("hero", height=500, key="hero_ship", zones=class_zones(df),
 
 best_meta = reg.get(best, {}) if best else {}
 kpi_tiles([
-    {"label": "Passenger records", "count_to": ov["passengers"], "icon": "groups", "sub": "Kaggle train.csv (labelled)", "accent": BRASS},
-    {"label": "Survivors", "count_to": ov["survivors"], "icon": "lifebuoy" if False else "health_and_safety", "sub": f"{ov['non_survivors']:,} did not survive", "accent": SURVIVED},
-    {"label": "Survival rate", "value": f"{ov['survival_rate']:.1%}", "icon": "percent", "sub": "in the labelled data", "accent": SURVIVED},
-    {"label": "Models trained", "count_to": len(reg), "icon": "model_training", "sub": "tuned with 5-fold CV", "accent": VIOLET},
-    {"label": "Best model", "value": state.model_name(best) if best else "—", "icon": "workspace_premium",
-     "sub": f"CV ROC-AUC {best_meta.get('cv', {}).get('roc_auc_mean', 0):.3f}" if best else "train models to see", "accent": BRASS},
-    {"label": "Best · holdout accuracy", "value": f"{best_meta.get('holdout', {}).get('accuracy', 0):.1%}" if best else "—", "icon": "verified",
-     "sub": f"F1 {best_meta.get('holdout', {}).get('f1', 0):.3f} · AUC {best_meta.get('holdout', {}).get('roc_auc', 0):.3f}" if best else "", "accent": PERISHED},
+    {"label": "Passenger records", "count_to": ov["passengers"], "sub": "Kaggle train.csv (labelled)"},
+    {"label": "Survivors", "count_to": ov["survivors"], "sub": f"{ov['non_survivors']:,} did not survive"},
+    {"label": "Survival rate", "value": f"{ov['survival_rate']:.1%}", "sub": "in the labelled data"},
+    {"label": "Models trained", "count_to": len(reg), "sub": "tuned with 5-fold CV"},
+    {"label": "Best model", "value": state.model_name(best) if best else "—",
+     "sub": f"CV ROC-AUC {best_meta.get('cv', {}).get('roc_auc_mean', 0):.3f}" if best else "train models to see"},
+    {"label": "Best · holdout accuracy", "value": f"{best_meta.get('holdout', {}).get('accuracy', 0):.1%}" if best else "—",
+     "sub": f"F1 {best_meta.get('holdout', {}).get('f1', 0):.3f} · AUC {best_meta.get('holdout', {}).get('roc_auc', 0):.3f}" if best else ""},
 ])
 
 c1, c2, c3, c4 = st.columns(4)

@@ -21,14 +21,14 @@ DIVERGING = [[0.0, PERISHED], [0.5, "#2a3550"], [1.0, SURVIVED]]
 
 pio.templates["titanic"] = go.layout.Template(layout=go.Layout(
     font=dict(family=FONT, color=INK_2, size=13),
-    title=dict(font=dict(family="'Space Grotesk', Inter, sans-serif", color=INK, size=16), x=0.0, xanchor="left", y=0.97),
+    title=dict(font=dict(family="'Source Serif 4', Georgia, serif", color=INK, size=16), x=0.0, xanchor="left", y=0.97),
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
     colorway=CATEGORICAL,
     margin=dict(l=10, r=14, t=52, b=52),
     xaxis=dict(gridcolor=GRID, zerolinecolor=AXIS, linecolor=AXIS, tickcolor=AXIS, tickfont=dict(color=MUTED), title_font=dict(color=INK_2), automargin=True),
     yaxis=dict(gridcolor=GRID, zerolinecolor=AXIS, linecolor=AXIS, tickcolor=AXIS, tickfont=dict(color=MUTED), title_font=dict(color=INK_2), automargin=True),
     legend=dict(orientation="h", yanchor="bottom", y=1.0, xanchor="right", x=1.0, bgcolor="rgba(0,0,0,0)", font=dict(color=INK_2)),
-    hoverlabel=dict(bgcolor="#0d1a33", bordercolor="rgba(227,184,102,0.5)", font=dict(family=FONT, color=INK, size=13)),
+    hoverlabel=dict(bgcolor="#131823", bordercolor="rgba(232,236,242,0.14)", font=dict(family=FONT, color=INK, size=13)),
     bargap=0.28, bargroupgap=0.08,
     coloraxis=dict(colorbar=dict(outlinewidth=0, tickfont=dict(color=MUTED))),
 ))
@@ -84,7 +84,7 @@ def donut(values: list[float], labels: list[str], colors: list[str], title: str 
                            textinfo="percent", textfont=dict(color="#ffffff", size=13),
                            hovertemplate="<b>%{label}</b><br>%{value:,} (%{percent})<extra></extra>"))
     if center:
-        fig.add_annotation(text=center, showarrow=False, font=dict(size=20, color=INK, family="'Space Grotesk', Inter"))
+        fig.add_annotation(text=center, showarrow=False, font=dict(size=20, color=INK, family="'Source Serif 4', Georgia, serif"))
     fig.update_layout(legend=dict(orientation="h", y=-0.08, x=0.5, xanchor="center", yanchor="top"))
     return _finish(fig, title, height)
 
@@ -252,7 +252,7 @@ def line_ice(df: pd.DataFrame, x: str, title: str, current: float | None = None,
 
 def gauge(prob: float, title: str = "") -> go.Figure:
     color = SURVIVED if prob >= 0.5 else PERISHED
-    fig = go.Figure(go.Indicator(mode="gauge+number", value=prob * 100, number=dict(suffix="%", font=dict(size=40, color=INK, family="'Space Grotesk'")),
+    fig = go.Figure(go.Indicator(mode="gauge+number", value=prob * 100, number=dict(suffix="%", font=dict(size=40, color=INK, family="'Source Serif 4', Georgia, serif")),
                                  gauge=dict(axis=dict(range=[0, 100], tickcolor=MUTED, tickfont=dict(color=MUTED)), bar=dict(color=color, thickness=0.3),
                                             bgcolor="rgba(255,255,255,0.04)", borderwidth=0,
                                             steps=[dict(range=[0, 50], color="rgba(232,105,58,0.10)"), dict(range=[50, 100], color="rgba(58,142,230,0.10)")],

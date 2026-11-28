@@ -130,13 +130,13 @@ if st.session_state.pop("log_pending", False):
 
 # ── result ──────────────────────────────────────────────────────────────
 section("Survival estimate", "01", "confirmation_number")
-cls_name = {1: "FIRST", 2: "SECOND", 3: "THIRD"}[inp.pclass]
+cls_name = {1: "First", 2: "Second", 3: "Third"}[inp.pclass]
 age_txt = "unknown" if inp.age is None else f"{inp.age:g}"
-fields = {"Class": cls_name, "Sex": inp.sex.upper(), "Age": age_txt, "Port": PORTS[inp.embarked].upper(), "Sib/Sp": inp.sibsp, "Par/Ch": inp.parch,
+fields = {"Class": cls_name, "Sex": inp.sex.capitalize(), "Age": age_txt, "Port": PORTS[inp.embarked], "Sib/Sp": inp.sibsp, "Par/Ch": inp.parch,
           "Fare": f"£{inp.fare:.2f}", "Cabin": inp.cabin or "—"}
 who = inp.name or f"{inp.title or contrib.loc[contrib['feature'] == 'TitleGroup', 'value'].iloc[0] if (contrib['feature'] == 'TitleGroup').any() else 'Passenger'} · custom profile"
 top = contrib.head(6)[["label", "value", "contribution"]].to_dict("records")
-boarding_pass({"title": who, "fields": fields, "from": PORTS[inp.embarked].upper()}, p, res["confidence"], top, state.model_name(key))
+boarding_pass({"title": who, "fields": fields, "from": PORTS[inp.embarked]}, p, res["confidence"], top, state.model_name(key))
 r1, r2 = st.columns([1, 1.15])
 with r1:
     kpi_tiles([

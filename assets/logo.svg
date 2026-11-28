@@ -1,11 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="240" height="48" viewBox="0 0 240 48">
-  <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f3d79b"/></linearGradient></defs>
-  <rect x="1" y="1" width="46" height="46" rx="12" fill="#0d1d40" stroke="#e3b866" stroke-opacity=".55"/>
+  <rect x="1" y="1" width="46" height="46" rx="12" fill="#1a202c" stroke="#e8ebf0" stroke-opacity=".14"/>
   <path d="M7 30 L41 30 L37 37 Q24 40 11 37 Z" fill="#e3b866"/>
   <rect x="13" y="25" width="22" height="5" rx="1" fill="#eaf0fa"/>
   <g fill="#c9a96e"><rect x="15" y="16" width="4" height="9" rx="1"/><rect x="21" y="16" width="4" height="9" rx="1"/><rect x="27" y="16" width="4" height="9" rx="1"/><rect x="33" y="17" width="3" height="8" rx="1"/></g>
   <g fill="#111"><rect x="15" y="16" width="4" height="2"/><rect x="21" y="16" width="4" height="2"/><rect x="27" y="16" width="4" height="2"/><rect x="33" y="17" width="3" height="2"/></g>
   <path d="M6 42 Q12 39 18 42 T30 42 T42 42" stroke="#3a8ee6" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <text x="58" y="25" font-family="Space Grotesk, Inter, Segoe UI, sans-serif" font-size="17" font-weight="700" letter-spacing="3.2" fill="url(#g)">TITANIC ML LAB</text>
-  <text x="58" y="40" font-family="Inter, Segoe UI, sans-serif" font-size="8.5" letter-spacing="3.4" fill="#e3b866">SURVIVAL PREDICTION</text>
+  <text x="58" y="25" font-family="Source Serif 4, Georgia, serif" font-size="19" font-weight="500" fill="#e8ebf0">Titanic ML Lab</text>
+  <text x="58" y="40" font-family="Inter, Segoe UI, sans-serif" font-size="11" fill="#7c8594">Survival prediction</text>
 </svg>
