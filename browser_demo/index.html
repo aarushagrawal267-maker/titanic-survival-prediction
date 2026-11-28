@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Titanic ML Lab — browser demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%A2%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Titanic survival prediction lab running entirely in the browser (Streamlit via stlite/Pyodide).">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.2/build/stlite.css">
+  <style>
+    html, body { margin: 0; background: #050b1a; color: #eaf0fa; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    #loading { position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center;
+               padding: 16px; background: #050b1a; }
+    #loading .card { max-width: 30rem; text-align: center; line-height: 1.5; }
+    #loading h1 { font-size: 1.4rem; margin: 0 0 .5rem; color: #e3b866; }
+    #loading p { margin: .4rem 0; color: #b7c3d9; }
+    #loading .bar { height: 4px; margin: 1.2rem auto 0; width: 70%; border-radius: 2px; overflow: hidden; background: #0d1a33; }
+    #loading .bar i { display: block; height: 100%; width: 35%; background: #e3b866; animation: slide 1.4s ease-in-out infinite; }
+    @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+    @media (prefers-reduced-motion: reduce) { #loading .bar i { animation: none; width: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="loading" role="status" aria-live="polite">
+    <div class="card">
+      <h1>Titanic ML Lab — browser demo</h1>
+      <p>Starting Python in your browser. The first visit downloads Python and its scientific libraries, so it can take
+        <b>about 30–60 seconds</b> (longer on a slow connection or phone). Later visits are faster.</p>
+      <p>Everything runs on your device; nothing you enter is sent to a server.</p>
+      <div class="bar"><i></i></div>
+      <p id="elapsed" style="font-size:.85rem"></p>
+    </div>
+  </div>
+  <div id="root"></div>
+  <script type="module">
+    import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.2/build/stlite.js";
+    mount({
+      entrypoint: "app.py",
+      archives: [{ url: "./app.zip", format: "zip" }],
+      requirements: __REQUIREMENTS__,
+      env: { ...__ENV__, SHIP3D_COMPONENT_URL: new URL("./ship3d/index.html", document.baseURI).href },
+      streamlitConfig: { "client.toolbarMode": "minimal", "browser.gatherUsageStats": false },
+    }, document.getElementById("root"));
+    // Hide the loading card once Streamlit has drawn the app.
+    const t0 = Date.now();
+    const tick = setInterval(() => { const e = document.getElementById("elapsed");
+      if (e) e.textContent = `Loading… ${Math.round((Date.now() - t0) / 1000)} s`; else clearInterval(tick); }, 1000);
+    const hide = () => { document.getElementById("loading")?.remove(); obs.disconnect(); };
+    const obs = new MutationObserver(() => { if (document.querySelector('[data-testid="stSidebarNav"]')) hide(); });
+    obs.observe(document.body, { childList: true, subtree: true });
+    setTimeout(hide, 180000);
+  </script>
+</body>
+</html>

@@ -125,7 +125,8 @@ def ring(p: float, label: str = "survival", size: int = 150) -> str:
     </div>"""
 
 
-def boarding_pass(details: dict, prob: float, confidence: str, factors: list[dict], model_name: str) -> None:
+def boarding_pass(details: dict, prob: float, confidence: str, factors: list[dict], model_name: str,
+                  empty_note: str | None = None) -> None:
     """The signature prediction card. Hover/tap flips it to show the top factors."""
     color = prob_color(prob)
     outcome = "Likely survived" if prob >= 0.5 else "Likely did not survive"
@@ -142,6 +143,13 @@ def boarding_pass(details: dict, prob: float, confidence: str, factors: list[dic
             f'<i style="left:50%;width:1px;background:rgba(255,255,255,.3)"></i></div>'
             f'<div class="val">{f["contribution"] * 100:+.1f} pts</div></div>'
         )
+    if rows:
+        back = "".join(rows) + (
+            '<p style="margin-top:.7rem;font-size:.75rem;color:var(--muted)">Contributions in percentage points of predicted survival '
+            f'probability (SHAP). <span style="color:{SURVIVED}">Blue</span> pushes the estimate up, <span style="color:{PERISHED}">orange</span> '
+            'pushes it down. Statistical associations, not causes.</p>')
+    else:
+        back = f"<p>{empty_note or 'No explanation available.'}</p>"
     _md(f"""
     <div class="tml-pass-wrap">
       <div class="tml-pass" tabindex="0">
@@ -162,10 +170,7 @@ def boarding_pass(details: dict, prob: float, confidence: str, factors: list[dic
         </div>
         <div class="face back">
           <h4>{icon('psychology')} Why the model estimated {prob * 100:.0f}%</h4>
-          {''.join(rows) if rows else '<p>No explanation available.</p>'}
-          <p style="margin-top:.7rem;font-size:.75rem;color:var(--muted)">Contributions in percentage points of predicted survival probability
-          (SHAP). <span style="color:{SURVIVED}">Blue</span> pushes the estimate up, <span style="color:{PERISHED}">orange</span> pushes it down.
-          Statistical associations, not causes.</p>
+          {back}
         </div>
       </div>
     </div>""")

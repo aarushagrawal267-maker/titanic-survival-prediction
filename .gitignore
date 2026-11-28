@@ -42,3 +42,6 @@ node_modules/
 
 # Docker
 .dockerignore.bak
+
+# Browser-demo build output (browser_demo/build.py)
+browser_demo/dist/

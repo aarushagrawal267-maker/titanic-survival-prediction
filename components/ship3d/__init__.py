@@ -16,6 +16,7 @@ Example::
 from __future__ import annotations
 
 import math
+import os
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -24,7 +25,11 @@ import streamlit.components.v1 as components
 __all__ = ["ship3d"]
 
 _FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
-_component = components.declare_component("ship3d", path=str(_FRONTEND_DIR))
+# The in-browser build (browser_demo/) serves the frontend as static files next to the page, because its
+# ES-module imports cannot be resolved from Pyodide's virtual file system.
+_URL = os.environ.get("SHIP3D_COMPONENT_URL")
+_component = (components.declare_component("ship3d", url=_URL) if _URL
+              else components.declare_component("ship3d", path=str(_FRONTEND_DIR)))
 
 _MODES = {"hero", "explorer", "passenger"}
 _COLOR_BY = {"class", "actual", "predicted", "correct"}

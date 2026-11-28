@@ -9,9 +9,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import os
+
 import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Set by the in-browser (stlite/Pyodide) build in browser_demo/: no training, verified models only, no live SHAP.
+BROWSER_DEMO = os.environ.get("TITANIC_BROWSER_DEMO", "").strip().lower() in ("1", "true", "yes", "on")
 CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
 

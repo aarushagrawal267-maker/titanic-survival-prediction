@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st  # noqa: E402
 
+from src import config  # noqa: E402
 from src.ui import state  # noqa: E402
 from src.ui.theme import inject_theme  # noqa: E402
 
@@ -45,6 +46,8 @@ pages = {
         st.Page(P + "12_About.py", title="About the Project", icon=":material/info:"),
     ],
 }
+if config.BROWSER_DEMO:  # the in-browser build serves the committed models only; training needs the full app
+    pages["Modeling"] = [p for p in pages["Modeling"] if p.title != "Model Training"]
 nav = st.navigation(pages, position="sidebar", expanded=True)
 state.ensure_dataset_present()
 state.ensure_models_ready()
@@ -52,7 +55,7 @@ state.ensure_models_ready()
 # ── global sidebar controls ──────────────────────────────────────────
 st.logo(str(ROOT / "assets" / "logo.svg"), size="large", icon_image=str(ROOT / "assets" / "logo_icon.svg"))
 with st.sidebar:
-    if state.demo_mode():
+    if state.demo_mode() and not config.BROWSER_DEMO:
         st.markdown('<div class="tml-status"><b>Public demo</b> · you can train and experiment freely; '
                     'shared models and data are never overwritten.</div>', unsafe_allow_html=True)
     st.toggle("Learn mode", value=st.session_state.get("learn_mode", True), key="learn_mode",
@@ -77,5 +80,10 @@ with st.sidebar:
     else:
         st.markdown('<div class="tml-status">No trained models yet — open <b>Model Training</b> or run <code>python scripts/train_all.py</code>.</div>',
                     unsafe_allow_html=True)
+
+if config.BROWSER_DEMO:
+    st.info("**Browser demo** — runs entirely in your browser. Some features (model training, the XGBoost model and SHAP "
+            "explanations of custom passenger profiles) are only in the full app, which runs locally — see the project README.",
+            icon=":material/language:")
 
 nav.run()

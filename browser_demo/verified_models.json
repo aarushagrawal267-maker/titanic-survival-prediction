@@ -1,0 +1,15 @@
+{
+  "what": "Largest |difference| in predicted survival probability between the browser runtime and the pinned desktop libraries, over all 1,309 Kaggle passengers (train + test), taking the worse of pipeline.joblib and pipeline_full.joblib.",
+  "browser_runtime": "Pyodide 314.0.3 in Chromium (scikit-learn 1.8.0, NumPy 2.4.3, xgboost 2.1.4), as loaded by @stlite/browser 1.12.2",
+  "reference": "Python 3.13, scikit-learn 1.9.1, NumPy 2.5.3, xgboost-cpu 3.4.1 (requirements.txt pins)",
+  "checked": "2026-11-28",
+  "max_abs_diff": {
+    "decision_tree": 0.0,
+    "gradient_boosting": 0.0,
+    "knn": 0.0,
+    "logistic_regression": 2.220446049250313e-16,
+    "random_forest": 0.0,
+    "svm": 7.882583474838611e-15,
+    "xgboost": 0.11819994449615479
+  }
+}

@@ -6,7 +6,7 @@ import streamlit as st
 from sklearn.base import clone
 from sklearn.model_selection import cross_val_predict
 
-from src import eda
+from src import config, eda, model_manager
 from src.train import get_cv, split_xy
 from src.ui import charts, state
 from src.ui.components import kpi_tiles, learn, note, page_header, section
@@ -24,6 +24,8 @@ key = state.active_model()
 @st.cache_data(show_spinner="Computing out-of-fold predictions for every passenger…")
 def oof_predictions(model_key: str, mtime: float):
     """Each passenger is predicted by a model that did NOT see them (5-fold cross_val_predict)."""
+    if config.BROWSER_DEMO:  # refitting needs the full app; these were computed the same way when the demo was built
+        return np.asarray(model_manager.browser_oof()[model_key])
     X, y = split_xy(df)
     pipe = clone(state.get_pipeline(model_key, "dev"))
     prob = cross_val_predict(pipe, X, y, cv=get_cv(), method="predict_proba", n_jobs=-1)[:, 1]

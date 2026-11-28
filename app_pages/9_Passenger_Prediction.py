@@ -119,8 +119,15 @@ def explain_cached(model_key: str, records: list, mtime: float):
     return c, c.attrs["base_value"], c.attrs["method"]
 
 
-contrib, base, method = explain_cached(key, res["frame"].to_dict("records"), state.registry_mtime())
-contrib.attrs["base_value"] = base
+# The browser demo cannot run SHAP; rather than approximate, it shows no per-profile explanation.
+LIVE_EXPLANATIONS = xai.SHAP_AVAILABLE or not config.BROWSER_DEMO
+if LIVE_EXPLANATIONS:
+    contrib, base, method = explain_cached(key, res["frame"].to_dict("records"), state.registry_mtime())
+    contrib.attrs["base_value"] = base
+else:
+    contrib, base, method = None, None, None
+NO_SHAP_NOTE = ("SHAP explanations of custom profiles are only in the full app: the SHAP library cannot run in the browser. "
+                "<b>Explainable AI → Explain a passenger</b> shows real SHAP values, stored at training time, for 120 holdout passengers.")
 
 # log the prediction once per submission (monitoring)
 if st.session_state.pop("log_pending", False):
@@ -134,9 +141,13 @@ cls_name = {1: "FIRST", 2: "SECOND", 3: "THIRD"}[inp.pclass]
 age_txt = "unknown" if inp.age is None else f"{inp.age:g}"
 fields = {"Class": cls_name, "Sex": inp.sex.upper(), "Age": age_txt, "Port": PORTS[inp.embarked].upper(), "Sib/Sp": inp.sibsp, "Par/Ch": inp.parch,
           "Fare": f"£{inp.fare:.2f}", "Cabin": inp.cabin or "—"}
-who = inp.name or f"{inp.title or contrib.loc[contrib['feature'] == 'TitleGroup', 'value'].iloc[0] if (contrib['feature'] == 'TitleGroup').any() else 'Passenger'} · custom profile"
-top = contrib.head(6)[["label", "value", "contribution"]].to_dict("records")
-boarding_pass({"title": who, "fields": fields, "from": PORTS[inp.embarked].upper()}, p, res["confidence"], top, state.model_name(key))
+if contrib is not None:
+    who = inp.name or f"{inp.title or contrib.loc[contrib['feature'] == 'TitleGroup', 'value'].iloc[0] if (contrib['feature'] == 'TitleGroup').any() else 'Passenger'} · custom profile"
+    top = contrib.head(6)[["label", "value", "contribution"]].to_dict("records")
+else:
+    who, top = inp.name or f"{inp.title or 'Passenger'} · custom profile", []
+boarding_pass({"title": who, "fields": fields, "from": PORTS[inp.embarked].upper()}, p, res["confidence"], top, state.model_name(key),
+              empty_note=None if LIVE_EXPLANATIONS else NO_SHAP_NOTE)
 r1, r2 = st.columns([1, 1.15])
 with r1:
     kpi_tiles([
@@ -161,17 +172,20 @@ with r2:
 
 # ── explanation ─────────────────────────────────────────────────────────
 section("Why this estimate?", "02", "psychology")
-w1, w2 = st.columns([1.45, 1])
-with w1:
-    charts.show(charts.waterfall(base, contrib, p, "Feature contributions (SHAP, percentage points)"))
-with w2:
-    nar = xai.narrative(contrib)
-    st.markdown("**Factors associated with a higher estimate**")
-    st.markdown("\n".join(f"- {t}" for t in nar["higher"]) or "- none of note")
-    st.markdown("**Factors associated with a lower estimate**")
-    st.markdown("\n".join(f"- {t}" for t in nar["lower"]) or "- none of note")
-    note(f"Method: {method}. These are <b>statistical associations</b> learned from 1912 passenger records — "
-         "they describe the model's reasoning, not what caused anyone's survival.", "hub")
+if LIVE_EXPLANATIONS:
+    w1, w2 = st.columns([1.45, 1])
+    with w1:
+        charts.show(charts.waterfall(base, contrib, p, "Feature contributions (SHAP, percentage points)"))
+    with w2:
+        nar = xai.narrative(contrib)
+        st.markdown("**Factors associated with a higher estimate**")
+        st.markdown("\n".join(f"- {t}" for t in nar["higher"]) or "- none of note")
+        st.markdown("**Factors associated with a lower estimate**")
+        st.markdown("\n".join(f"- {t}" for t in nar["lower"]) or "- none of note")
+        note(f"Method: {method}. These are <b>statistical associations</b> learned from 1912 passenger records — "
+             "they describe the model's reasoning, not what caused anyone's survival.", "hub")
+else:
+    note(NO_SHAP_NOTE, "psychology")
 
 # ── what-if ─────────────────────────────────────────────────────────────
 section("What-if lab", "03", "science")

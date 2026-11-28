@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><title>verify</title></head><body><pre id="log">starting</pre>
+<script type="module">
+const q = new URLSearchParams(location.search);
+const log = (m) => { document.getElementById('log').textContent += "\n" + m; };
+try {
+  const { loadPyodide } = await import("https://cdn.jsdelivr.net/pyodide/v314.0.3/full/pyodide.mjs");
+  const py = await loadPyodide();
+  const pkgs = (q.get('packages') || '').split(',').filter(Boolean);
+  await py.loadPackage(pkgs, { messageCallback: () => {} });
+  log('packages loaded');
+  const buf = await (await fetch(q.get('zip'))).arrayBuffer();
+  py.unpackArchive(buf, "zip", { extractDir: "/home/pyodide/app" });
+  const script = await (await fetch(q.get('script'))).text();
+  py.FS.writeFile('/home/pyodide/verify_script.py', script);
+  await py.runPythonAsync(`
+import os, sys, runpy
+os.chdir('/home/pyodide/app'); sys.path.insert(0, '/home/pyodide/app')
+sys.argv = ['verify_script.py', '/home/pyodide/app', '/home/pyodide/out.json']
+runpy.run_path('/home/pyodide/verify_script.py', run_name='__main__')
+`);
+  window.__result = py.FS.readFile('/home/pyodide/out.json', { encoding: 'utf8' });
+  log('done');
+} catch (e) { window.__error = String(e && e.stack || e); log('ERROR ' + window.__error); }
+window.__done = true;
+</script></body></html>

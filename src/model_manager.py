@@ -25,6 +25,15 @@ import numpy as np
 
 from src import config
 
+if config.BROWSER_DEMO:
+    # The browser runtime has an older scikit-learn; the shipped models were checked to give the same predictions
+    # there (browser_demo/verified_models.json), so the version-mismatch warning would only be noise.
+    import warnings
+
+    from sklearn.exceptions import InconsistentVersionWarning
+
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+
 
 def models_dir() -> Path:
     return config.path("models_dir")
@@ -168,6 +177,25 @@ def best_model_key(metric: str | None = None) -> str | None:
     return max(reg.items(), key=score)[0]
 
 
+def browser_verified_models() -> dict[str, float]:
+    """Browser demo only: {model key: max |probability difference|} from ``models/browser_verified.json``."""
+    if not config.BROWSER_DEMO:
+        return {}
+    try:
+        return json.loads((models_dir() / "browser_verified.json").read_text())["max_abs_diff"]
+    except Exception:
+        return {}
+
+
+def browser_oof() -> dict[str, list[float]]:
+    """Browser demo only: out-of-fold survival probabilities per model for the rows of train.csv, computed by
+    browser_demo/build.py with the pinned desktop libraries (refitting is not possible in the browser runtime)."""
+    try:
+        return json.loads((models_dir() / "browser_oof.json").read_text())
+    except Exception:
+        return {}
+
+
 def stale_models() -> list[tuple[str, str]]:
     """Models that should be retrained in this environment: (key, reason).
 
@@ -178,8 +206,15 @@ def stale_models() -> list[tuple[str, str]]:
     import warnings
 
     current = library_versions()
+    verified = browser_verified_models()
     out = []
     for key in load_registry():
+        if key in verified:
+            # Browser demo: library versions differ by design, but this model's predictions were checked
+            # against the committed model under the browser's runtime (see browser_demo/build.py).
+            if not (models_dir() / key / "evaluation.joblib").exists():
+                out.append((key, "missing evaluation.joblib"))
+            continue
         try:
             saved = load_metadata(key).get("versions", {})
         except Exception as exc:

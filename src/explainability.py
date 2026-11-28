@@ -155,6 +155,25 @@ def shap_importance(shap_result: dict) -> pd.DataFrame:
     return df.sort_values("mean_abs_shap", ascending=False).reset_index(drop=True)
 
 
+def explain_stored(shap_result: dict, passenger_id) -> pd.DataFrame:
+    """Contributions for one passenger taken from the SHAP values stored at training time (same layout as
+    ``explain_one``). Used where the SHAP library is unavailable (the browser demo), so no values are approximated."""
+    i = list(shap_result["passenger_ids"]).index(passenger_id)
+    features = list(shap_result["features"])
+    data = pd.DataFrame(shap_result["data"])
+    row = data.iloc[i]
+    df = pd.DataFrame({
+        "feature": features,
+        "label": [friendly(f) for f in features],
+        "value": [_fmt_value(f, row[f]) for f in features],
+        "contribution": np.asarray(shap_result["values"])[i],
+    })
+    df = df.reindex(df["contribution"].abs().sort_values(ascending=False).index).reset_index(drop=True)
+    df.attrs["base_value"] = float(shap_result["base_value"])
+    df.attrs["method"] = f"{shap_result.get('method', 'SHAP')}, computed when the model was trained"
+    return df
+
+
 def explain_one(pipeline, x_raw: pd.DataFrame, X_background_raw: pd.DataFrame, top_k: int | None = None) -> pd.DataFrame:
     """Per-feature contributions for a single passenger, sorted by absolute impact."""
     res = shap_values(pipeline, x_raw, X_background_raw, background_size=60)

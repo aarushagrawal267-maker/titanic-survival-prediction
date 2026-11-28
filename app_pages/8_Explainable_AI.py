@@ -112,7 +112,10 @@ with tabs[3]:
                            format_func=lambda i: f"#{i} · {lookup.loc[i, 'Name']} · class {lookup.loc[i, 'Pclass']} · {lookup.loc[i, 'Sex']}", key="xai_pid")
         row = lookup.loc[[pid]].reset_index()
         X_dev = df.sample(frac=1.0, random_state=0)
-        contrib = xai.explain_one(pipe_dev, row.drop(columns=["Survived"]), df.drop(columns=["Survived"]).sample(200, random_state=1))
+        if xai.SHAP_AVAILABLE:
+            contrib = xai.explain_one(pipe_dev, row.drop(columns=["Survived"]), df.drop(columns=["Survived"]).sample(200, random_state=1))
+        else:  # e.g. the browser demo: show the real SHAP values stored at training time instead of approximating
+            contrib = xai.explain_stored(shp, pid)
         prob = float(pipe_dev.predict_proba(row.drop(columns=["Survived"]))[0, 1])
         actual = int(row["Survived"].iloc[0])
         kpi_tiles([
@@ -126,6 +129,7 @@ with tabs[3]:
         w1, w2 = st.columns([1.4, 1])
         with w1:
             charts.show(charts.waterfall(contrib.attrs["base_value"], contrib, prob, "From the average passenger to this passenger"))
+            st.caption(f"Method: {contrib.attrs['method']}.")
         with w2:
             nar = xai.narrative(contrib)
             st.markdown("**Associated with a higher estimate**")
