@@ -111,7 +111,7 @@ with tab_train:
     last = st.session_state.get("last_training")
     if last:
         meta = last["meta"]
-        section(f"Results — {meta['name']}", "✓", "task_alt")
+        section(f"Results — {meta['name']}", None, "task_alt")
         cv, ho = meta["cv"], meta["holdout"]
         kpi_tiles([{"label": f"CV {METRIC_LABELS[m]}", "value": f"{cv[f'{m}_mean']:.3f}", "sub": f"± {cv[f'{m}_std']:.3f} across folds",
                     "icon": "repeat", "accent": SURVIVED} for m in METRICS])

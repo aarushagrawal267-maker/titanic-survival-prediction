@@ -4,11 +4,11 @@ from __future__ import annotations
 import streamlit as st
 
 # Design tokens (data colours validated for colour-blind separation on the navy surface)
-INK = "#eaf0fa"
-INK_2 = "#b4c2d9"
-MUTED = "#7d8ca8"
-SURFACE = "#0d1a33"
-BG = "#050b1a"
+INK = "#e8ebf0"
+INK_2 = "#aab2bf"
+MUTED = "#7c8594"
+SURFACE = "#131823"
+BG = "#0a0d13"
 BRASS = "#e3b866"
 SURVIVED = "#3a8ee6"
 PERISHED = "#e8693a"
@@ -45,16 +45,17 @@ html, body, [data-testid="stApp"] { background: var(--bg) !important; }
 }
 
 /* ── typography ─────────────────────────────────────────────────────── */
-h1, h2, h3, h4, h1 *, h2 *, h3 *, h4 *, [data-testid="stHeading"] * { font-family: var(--font-display) !important; font-weight: 500 !important; letter-spacing: 0; color: var(--ink); }
+h1, h2, h3, h4, h5, h1 *, h2 *, h3 *, h4 *, h5 *, [data-testid="stHeading"] * { font-family: var(--font-display) !important; font-weight: 500 !important; letter-spacing: 0; color: var(--ink); }
 p, li, label, span, div { font-family: var(--font-body); }
 code, pre, .tml-mono { font-family: var(--font-mono) !important; }
 [data-testid="stMarkdownContainer"] p { color: var(--ink-2); line-height: 1.6; }
 [data-testid="stMarkdownContainer"] strong { color: var(--ink); font-weight: 500; }
-[data-testid="stMarkdownContainer"] em { font-style: normal; color: var(--ink); }
+i, em { font-style: normal; color: var(--ink); }
+[data-testid="stTable"] th { font-weight: 500; color: var(--ink-2); }
 [data-testid="stCaptionContainer"], .stCaption { color: var(--muted) !important; }
 a { color: var(--brass-2) !important; }
 [data-testid="stMetricValue"], [data-testid="stDataFrame"], .tml-num { font-variant-numeric: tabular-nums; }
-.msr, h1 .msr, h2 .msr, h3 .msr, h4 .msr, [data-testid="stIconMaterial"] { font-family: 'Material Symbols Rounded' !important; font-weight: normal; font-style: normal; line-height: 1;
+.msr, h1 .msr, h2 .msr, h3 .msr, h4 .msr, h5 .msr, [data-testid="stIconMaterial"] { font-family: 'Material Symbols Rounded' !important; font-weight: normal; font-style: normal; line-height: 1;
        letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap;
        -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }
 
@@ -118,8 +119,8 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 [data-baseweb="input"], [data-baseweb="select"] > div, [data-baseweb="textarea"], [data-testid="stNumberInputContainer"] {
   background: var(--bg) !important; border-color: var(--line-2) !important; border-radius: var(--radius-sm) !important;
 }
-[data-baseweb="input"]:focus-within, [data-baseweb="select"] > div:focus-within { border-color: var(--brass) !important; box-shadow: none; }
-[data-testid="stSlider"] [role="slider"] { background: var(--brass) !important; box-shadow: none !important; }
+[data-baseweb="input"]:focus-within, [data-baseweb="select"] > div:focus-within { border-color: var(--ink-2) !important; box-shadow: none; }
+[data-testid="stSlider"] [role="slider"] { background: var(--ink) !important; box-shadow: none !important; }
 [data-testid="stSliderThumbValue"] { color: var(--ink) !important; font-family: var(--font-mono) !important; }
 [data-testid="stFileUploaderDropzone"] {
   background: var(--surface) !important; border: 1px dashed var(--line-2) !important; border-radius: var(--radius) !important;
@@ -148,10 +149,10 @@ button:focus-visible, a:focus-visible, [role="tab"]:focus-visible { outline: 2px
 [data-testid="stMetricLabel"] p { color: var(--muted) !important; text-transform: none; letter-spacing: 0; font-size: 13px !important; }
 [data-testid="stAlert"] { border-radius: var(--radius-sm) !important; border: 1px solid var(--line) !important; }
 [data-testid="stDataFrame"], [data-testid="stTable"] { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); }
-[data-testid="stProgress"] > div > div > div > div { background: var(--brass) !important; }
+[data-testid="stProgress"] > div > div > div > div { background: var(--ink-2) !important; }
 hr { border-color: var(--line) !important; }
 [data-testid="stToolbar"] { opacity: .6; }
-[data-testid="stPlotlyChart"] { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 8px 4px; }
+[data-testid="stPlotlyChart"] { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 8px 0; overflow: visible; }
 
 /* ══ custom components ═══════════════════════════════════════════════ */
 .tml-eyebrow { font-family: var(--font-mono); text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--muted);
@@ -168,10 +169,10 @@ hr { border-color: var(--line) !important; }
 .tml-section .line { flex: 1; height: 1px; background: var(--line); }
 .tml-section .msr { color: var(--muted); font-size: 18px; }
 
-.tml-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 8px 0 16px; }
-.tml-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 20px; }
+.tml-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(144px, 1fr)); margin: 8px 0 16px; }
+.tml-kpi { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px 20px; }
 .tml-kpi .label { color: var(--muted); font-size: 13px; font-weight: 400; }
-.tml-kpi .value { font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--ink); margin-top: 4px; line-height: 1.15; font-variant-numeric: tabular-nums lining-nums; }
+.tml-kpi .value { margin-top: auto !important; font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--ink); margin-top: 4px; line-height: 1.15; font-variant-numeric: tabular-nums lining-nums; }
 .tml-kpi .value.small { font-size: 22px; margin-top: 8px; overflow-wrap: anywhere; }
 .tml-kpi .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
 
