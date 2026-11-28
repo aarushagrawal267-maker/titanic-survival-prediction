@@ -15,11 +15,11 @@ best = state.best_key()
 
 st.markdown(f"""
 <div class="tml-hero">
-  <div class="tml-eyebrow"><span class="dot"></span>Passenger survival prediction system</div>
+  <div class="tml-eyebrow">Passenger survival prediction</div>
   <h1>Titanic ML Lab</h1>
   <div class="tag">An end-to-end machine-learning laboratory built on the historical passenger records of RMS Titanic —
   explore the data, train and compare seven algorithms, look inside their decisions, and estimate survival chances for any passenger profile.</div>
-  <div class="chips">{pill(f"{ov['passengers']:,} real passenger records", "brass")}{pill("7 algorithms")}{pill("Leakage-safe pipelines")}{pill("SHAP explainability")}{pill("3D ship explorer")}</div>
+  <div class="chips">{pill(f"{ov['passengers']:,} real passenger records")}{pill("7 algorithms")}{pill("Leakage-safe pipelines")}{pill("SHAP explainability")}{pill("3D ship explorer")}</div>
 </div>""", unsafe_allow_html=True)
 
 st.write("")
@@ -29,7 +29,7 @@ render_ship("hero", height=500, key="hero_ship", zones=class_zones(df),
 best_meta = reg.get(best, {}) if best else {}
 kpi_tiles([
     {"label": "Passenger records", "count_to": ov["passengers"], "icon": "groups", "sub": "Kaggle train.csv (labelled)", "accent": BRASS},
-    {"label": "Survivors", "count_to": ov["survivors"], "icon": "lifebuoy" if False else "health_and_safety", "sub": f"{ov['non_survivors']:,} did not survive", "accent": SURVIVED},
+    {"label": "Survivors", "count_to": ov["survivors"], "icon": "health_and_safety", "sub": f"{ov['non_survivors']:,} did not survive", "accent": SURVIVED},
     {"label": "Survival rate", "value": f"{ov['survival_rate']:.1%}", "icon": "percent", "sub": "in the labelled data", "accent": SURVIVED},
     {"label": "Models trained", "count_to": len(reg), "icon": "model_training", "sub": "tuned with 5-fold CV", "accent": VIOLET},
     {"label": "Best model", "value": state.model_name(best) if best else "—", "icon": "workspace_premium",

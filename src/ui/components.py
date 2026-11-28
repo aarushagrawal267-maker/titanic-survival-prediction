@@ -38,19 +38,20 @@ def section(title: str, num: str | None = None, icon_name: str | None = None) ->
 
 
 def kpi_tiles(items: list[dict]) -> None:
-    """items: {label, value, sub?, icon?, accent?, count_to? (int → animated count-up)}"""
+    """items: {label, value, sub?, count_to? (int, shown with thousands separators)}.
+
+    The row is deliberately neutral: `icon` and `accent` keys are accepted for compatibility but not drawn.
+    """
     cards = []
-    for i, it in enumerate(items):
-        accent = it.get("accent", "var(--brass)")
+    for it in items:
         if it.get("count_to") is not None:
-            prefix, suffix = it.get("prefix", ""), it.get("suffix", "")
-            val = f'{esc(prefix)}<span class="tml-count" style="--to:{int(it["count_to"])}"></span>{esc(suffix)}'
+            val = f'{esc(it.get("prefix", ""))}{int(it["count_to"]):,}{esc(it.get("suffix", ""))}'
         else:
             val = esc(it["value"])
         long_cls = " small" if it.get("count_to") is None and len(str(it.get("value", ""))) >= 7 else ""
         cards.append(f"""
-        <div class="tml-kpi" style="--accent:{accent}; animation-delay:{i * 70}ms">
-          <div class="label">{icon(it.get('icon', 'insights'))}{esc(it['label'])}</div>
+        <div class="tml-kpi">
+          <div class="label">{esc(it['label'])}</div>
           <div class="value{long_cls}">{val}</div>
           {f'<div class="sub">{it["sub"]}</div>' if it.get('sub') else ''}
         </div>""")
@@ -59,7 +60,7 @@ def kpi_tiles(items: list[dict]) -> None:
 
 def insight_cards(insights: list[dict]) -> None:
     cards = "".join(
-        f"""<div class="tml-insight" style="animation-delay:{i * 60}ms"><div class="ic">{icon(it.get('icon', 'lightbulb'))}</div>
+        f"""<div class="tml-insight"><div class="ic">{icon(it.get('icon', 'lightbulb'))}</div>
         <div><h5>{esc(it['title'])}</h5><p>{esc(it['text'])}</p></div></div>"""
         for i, it in enumerate(insights)
     )
@@ -99,7 +100,7 @@ def pill(text: str, kind: str = "") -> str:
 def flow(steps: list[tuple[str, str, str]]) -> None:
     """Pipeline diagram: list of (title, description, icon)."""
     parts = "".join(
-        f'<div class="step">{icon(ic)}<div class="n">STEP {i + 1:02d}</div><div class="t">{esc(t)}</div><div class="d">{d}</div></div>'
+        f'<div class="step">{icon(ic)}<div class="n">Step {i + 1:02d}</div><div class="t">{esc(t)}</div><div class="d">{d}</div></div>'
         for i, (t, d, ic) in enumerate(steps)
     )
     _md(f'<div class="tml-flow">{parts}</div>')
@@ -147,11 +148,11 @@ def boarding_pass(details: dict, prob: float, confidence: str, factors: list[dic
       <div class="tml-pass" tabindex="0">
         <div class="face front">
           <div class="main">
-            <div class="top"><span class="brand">TITANIC ML LAB</span><span class="kind">SURVIVAL ESTIMATE · {esc(model_name.upper())}</span></div>
+            <div class="top"><span class="brand">Titanic ML Lab</span><span class="kind">Survival estimate · {esc(model_name)}</span></div>
             <div class="stamp" style="--stamp:{color}">Est. survival {prob * 100:.0f}%</div>
             <div class="who">{esc(details.get('title', 'Passenger'))}</div>
             <div class="fields">{fields}</div>
-            <div class="route"><span>{esc(details.get('from', 'SOUTHAMPTON'))}</span><span class="lineb"></span>{icon('directions_boat')}<span class="lineb"></span><span>NEW YORK</span></div>
+            <div class="route"><span>{esc(details.get('from', 'Southampton'))}</span><span class="lineb"></span>{icon('directions_boat')}<span class="lineb"></span><span>New York</span></div>
             <div class="hint">{icon('touch_app')} hover or tap to flip</div>
           </div>
           <div class="stub">
@@ -183,5 +184,5 @@ def sidebar_brand() -> None:
         <rect x="44" y="22" width="4" height="10" rx="1" fill="#c9a96e"/><rect x="44" y="22" width="4" height="3" fill="#111"/>
         <path d="M4 56 Q14 52 24 56 T44 56 T62 56" stroke="#3a8ee6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
       </svg></div>
-      <div class="name">TITANIC ML LAB<span>SURVIVAL PREDICTION</span></div>
+      <div class="name">Titanic ML Lab<span>Survival prediction</span></div>
     </div>""", unsafe_allow_html=True)

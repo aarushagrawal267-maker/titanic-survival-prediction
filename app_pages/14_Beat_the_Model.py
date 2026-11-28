@@ -45,8 +45,7 @@ st.write("")
 if g["i"] >= ROUNDS:
     section("Final result", None, "emoji_events")
     if g["you"] > g["model"]:
-        st.success(f"You beat the model {g['you']}–{g['model']}! Human intuition (or luck) wins this round.")
-        st.balloons()
+        st.success(f"You beat the model {g['you']}–{g['model']}. Human intuition, or luck, wins this round.")
     elif g["you"] == g["model"]:
         st.info(f"A draw, {g['you']}–{g['model']}.")
     else:
@@ -66,7 +65,7 @@ fam = int(row["SibSp"] + row["Parch"])
 age = "unknown" if pd.isna(row["Age"]) else f"{row['Age']:g}"
 port = {"S": "Southampton", "C": "Cherbourg", "Q": "Queenstown"}.get(row["Embarked"], "unknown")
 st.markdown(f"""<div class="tml-quiz-card">
-  <div class="tml-eyebrow"><span class="dot"></span>Passenger {g['i'] + 1} of {ROUNDS} · #{int(row['PassengerId'])}</div>
+  <div class="tml-eyebrow">Passenger {g['i'] + 1} of {ROUNDS} · #{int(row['PassengerId'])}</div>
   <h3 style="margin:.4rem 0 .9rem">{esc(row['Name'])}</h3>
   <div class="tml-pass" style="display:block;min-height:0;animation:none"><div class="fields" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem 1rem">
     <div class="f"><div class="k">Class</div><div class="v">{int(row['Pclass'])}</div></div>

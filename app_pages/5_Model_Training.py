@@ -74,7 +74,7 @@ with tab_train:
             st.markdown(f"<p>{spec.purpose}</p>", unsafe_allow_html=True)
             st.markdown("**Advantages**  \n" + "\n".join(f"- {p}" for p in spec.pros))
             st.markdown("**Limitations**  \n" + "\n".join(f"- {c}" for c in spec.cons))
-            st.markdown(" ".join([pill("needs scaling" if spec.scale_sensitive else "scale-invariant", "brass"),
+            st.markdown(" ".join([pill("needs scaling" if spec.scale_sensitive else "scale-invariant"),
                                   pill("tree-based" if spec.tree_based else "non-tree")]), unsafe_allow_html=True)
         reg = state.get_registry()
         if key in reg:
@@ -106,7 +106,7 @@ with tab_train:
         if not state.demo_mode():
             state.refresh_caches()
         st.session_state["last_training"] = {"key": key, "meta": res["meta"], "search": res["evaluation"].get("search_table")}
-        st.toast(f"{spec.name} {'trained (not saved in the public demo)' if state.demo_mode() else 'saved to the model registry'}", icon="✅")
+        st.toast(f"{spec.name} {'trained (not saved in the public demo)' if state.demo_mode() else 'saved to the model registry'}", icon=":material/check_circle:")
 
     last = st.session_state.get("last_training")
     if last:
