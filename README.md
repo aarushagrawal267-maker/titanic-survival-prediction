@@ -289,7 +289,7 @@ the shared models or replace the dataset.
 1. Go to <https://share.streamlit.io> and sign in with GitHub.
 2. Click **Create app** → **Deploy a public app from GitHub** and choose:
    * Repository: `aarushagrawal267-maker/titanic-survival-prediction`
-   * Branch: `main`
+   * Branch: the branch that holds the version you want to publish (the repository's default branch unless you choose another)
    * Main file path: `app.py`
    * App URL: pick a name, e.g. `titanic-ml-lab`
 3. Open **Advanced settings**:
